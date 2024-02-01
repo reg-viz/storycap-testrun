@@ -1,5 +1,6 @@
 storybook-static
 __screenshots__
+.npmrc
 
 # Created by https://www.toptal.com/developers/gitignore/api/osx,windows,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,windows,node
