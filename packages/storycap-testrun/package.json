@@ -1,6 +1,6 @@
 {
   "name": "storycap-testrun",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A utility that provides stable screenshot capture functionality using `@storybook/test-runner`.",
   "keywords": [
     "storybook",

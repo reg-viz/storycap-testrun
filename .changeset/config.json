@@ -7,7 +7,7 @@
   "commit": false,
   "fixed": [["storycap-testrun"]],
   "linked": [],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": []
