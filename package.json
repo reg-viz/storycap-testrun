@@ -1,0 +1,55 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -C packages/storycap-testrun build",
+    "canary:enter": "changeset pre enter canary",
+    "canary:exit": "changeset pre exit",
+    "changelog": "changeset add",
+    "clean": "pnpm --if-present -r clean",
+    "clean:all": "pnpm clean && pnpm clean:deps",
+    "clean:deps": "rimraf -g \"node_modules\" \"**/node_modules\"",
+    "format": "pnpm format:script && pnpm format:prettier",
+    "format:prettier": "prettier --write .",
+    "format:script": "eslint --fix .",
+    "lint": "pnpm lint:prettier && pnpm lint:script",
+    "lint:prettier": "prettier --check .",
+    "lint:script": "eslint .",
+    "release": "changeset publish",
+    "test": "pnpm test:e2e",
+    "test:e2e": "zx scripts/e2e.js"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-packagejson"
+    ],
+    "singleQuote": true
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.1",
+    "@eslint/eslintrc": "^3.0.0",
+    "@eslint/js": "^8.56.0",
+    "@storybook/test-runner": "^0.16.0",
+    "@tsconfig/node20": "^20.1.2",
+    "@tsconfig/strictest": "^2.0.2",
+    "@types/node": "^20.11.15",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "globals": "^13.24.0",
+    "http-server": "^14.1.1",
+    "playwright": "^1.41.1",
+    "prettier": "^3.1.1",
+    "prettier-plugin-packagejson": "^2.4.10",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "wait-on": "^7.2.0",
+    "zx": "^7.2.3"
+  },
+  "packageManager": "pnpm@8.14.0"
+}

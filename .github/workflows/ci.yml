@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ matrix.node }}
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    strategy:
+      matrix:
+        node: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.node }}
+          path: |
+            packages/*/dist
+            !node_modules/**/dist
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+      matrix:
+        node: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ matrix.node }}
+          path: packages
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: '20'
+      - run: pnpm lint
+
+  pass:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - test
+      - lint
+    steps:
+      - run: exit 0
+
+  publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'reg-viz/storycap-testrun' && github.ref == 'refs/heads/main'
+    needs: [pass]
+    env:
+      NODE_VERSION: 20
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ env.NODE_VERSION }}
+          path: packages
+      - name: Creating .npmrc
+        run: |
+          cat << EOF > ".npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+      - name: Create Release Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          commit: 'chore: version packages'

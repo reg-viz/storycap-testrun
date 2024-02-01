@@ -1,0 +1,65 @@
+{
+  "name": "storycap-testrun",
+  "version": "0.0.0",
+  "description": "A utility that provides stable screenshot capture functionality using `@storybook/test-runner`.",
+  "keywords": [
+    "storybook",
+    "storybook-addon",
+    "storycap",
+    "addon",
+    "playwright",
+    "screenshot",
+    "capture",
+    "visual-testing",
+    "testing",
+    "test"
+  ],
+  "homepage": "https://github.com/reg-viz/storycap-testrun",
+  "bugs": {
+    "url": "https://github.com/reg-viz/storycap-testrun/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reg-viz/storycap-testrun.git"
+  },
+  "license": "MIT",
+  "author": "wadackel",
+  "contributors": [
+    "Yosuke Kurami"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "typecheck": "tsc"
+  },
+  "peerDependencies": {
+    "@storybook/test-runner": "*",
+    "playwright": "^1.0.0"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "splitting": false,
+    "sourcemap": false,
+    "clean": true,
+    "dts": true
+  }
+}
