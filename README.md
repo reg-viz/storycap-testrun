@@ -176,7 +176,7 @@ The interval in milliseconds before attempting to capture the screenshot again. 
 ### `flakiness.retake.retries`
 
 **Type:** `number`  
-**Default:** `5`
+**Default:** `10`
 
 The number of times to repeat capturing the screenshot until the hash values of the images are identical. A value of 3 or more is recommended to achieve the effect of retries.
 
@@ -234,6 +234,20 @@ See [Page | Playwright][playwright-screenshot].
 
 These are parameters that can be specified for each Story.
 
+```typescript
+// Button.stories.tsx
+const meta: Meta<typeof Button> = {
+  component: Button,
+  parameters: {
+    screenshot: {
+      /* parameters... */
+    },
+  },
+};
+
+export default meta;
+```
+
 ### `skip`
 
 **Type:** `boolean`  
@@ -264,7 +278,7 @@ Removes elements corresponding to the CSS selector.
 
 ## CHANGELOG
 
-See [CHANGELOG.md](./CHANGELOG.md).
+See [CHANGELOG.md](./packages/storycap-testrun/CHANGELOG.md).
 
 ## License
 

@@ -35,11 +35,11 @@ export type ScreenshotOptions = {
   };
   flakiness?: {
     metrics?: {
-      enabled: boolean;
+      enabled?: boolean;
       retries?: number;
     };
     retake?: {
-      enabled: boolean;
+      enabled?: boolean;
       interval?: number;
       retries?: number;
     };
@@ -66,7 +66,7 @@ const defaultScreenshotOptions: ResolvedScreenshotOptions = {
     retake: {
       enabled: true,
       interval: 100,
-      retries: 5,
+      retries: 10,
     },
   },
   hooks: [],
