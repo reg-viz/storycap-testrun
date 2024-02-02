@@ -1,5 +1,14 @@
 # storycap-testrun
 
+## 0.0.2
+
+### Patch Changes
+
+- [`5c3a673`](https://github.com/reg-viz/storycap-testrun/commit/5c3a67378d10c93c34d82c50e863ca50ce68222e) Thanks [@wadackel](https://github.com/wadackel)! - A micro update:
+
+  - Increased the default retry count for `retake` from 5 to 10
+  - Improved the type for `flakiness`
+
 ## 0.0.1
 
 ### Patch Changes
