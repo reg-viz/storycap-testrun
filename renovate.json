@@ -8,7 +8,6 @@
     ":semanticCommitScopeDisabled"
   ],
   "labels": ["A-dependencies"],
-  "baseBranches": ["canary"],
   "major": {
     "stabilityDays": 7
   },
