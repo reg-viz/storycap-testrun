@@ -32,7 +32,7 @@
     "@eslint/js": "8.56.0",
     "@storybook/test-runner": "0.16.0",
     "@tsconfig/node20": "20.1.2",
-    "@tsconfig/strictest": "2.0.2",
+    "@tsconfig/strictest": "2.0.3",
     "@types/node": "20.11.15",
     "@typescript-eslint/eslint-plugin": "6.20.0",
     "@typescript-eslint/parser": "6.20.0",
