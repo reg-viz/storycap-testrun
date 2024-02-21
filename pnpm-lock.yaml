@@ -60,7 +60,7 @@ importers:
         specifier: ^1.41.1
         version: 1.41.1
       prettier:
-        specifier: ^3.1.1
+        specifier: ^3.2.4
         version: 3.2.4
       prettier-plugin-packagejson:
         specifier: ^2.4.10
