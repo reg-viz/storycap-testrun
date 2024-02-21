@@ -51,5 +51,5 @@
     "wait-on": "^7.2.0",
     "zx": "^7.2.3"
   },
-  "packageManager": "pnpm@8.14.0"
+  "packageManager": "pnpm@8.15.3"
 }
