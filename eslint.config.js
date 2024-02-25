@@ -1,24 +1,18 @@
 import globals from 'globals';
-import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import typescriptParser from '@typescript-eslint/parser';
-import typescriptPlugin from '@typescript-eslint/eslint-plugin';
+import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import prettierConfig from 'eslint-config-prettier';
 
-const compat = new FlatCompat();
-
-export default [
+export default tseslint.config(
   {
     ignores: ['**/dist/', '**/storybook-static/'],
   },
   {
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
       import: importPlugin,
     },
     languageOptions: {
-      parser: typescriptParser,
       globals: {
         ...globals.node,
         ...globals.browser,
@@ -26,7 +20,7 @@ export default [
     },
   },
   js.configs.recommended,
-  ...compat.extends('plugin:@typescript-eslint/eslint-recommended'),
+  ...tseslint.configs.recommended,
   {
     files: ['**/*.ts'],
     rules: {
@@ -44,4 +38,4 @@ export default [
     },
   },
   prettierConfig,
-];
+);
