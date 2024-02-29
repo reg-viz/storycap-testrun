@@ -15,8 +15,8 @@ importers:
         specifier: 2.27.1
         version: 2.27.1
       '@eslint/js':
-        specifier: 8.56.0
-        version: 8.56.0
+        specifier: 8.57.0
+        version: 8.57.0
       '@storybook/test-runner':
         specifier: 0.16.0
         version: 0.16.0(@types/node@20.11.20)
