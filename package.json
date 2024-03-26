@@ -32,7 +32,7 @@
     "@storybook/test-runner": "0.17.0",
     "@tsconfig/node20": "20.1.2",
     "@tsconfig/strictest": "2.0.4",
-    "@types/node": "20.11.25",
+    "@types/node": "20.11.30",
     "concurrently": "8.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
