@@ -39,7 +39,7 @@
     "eslint-plugin-import": "2.30.0",
     "globals": "15.9.0",
     "http-server": "14.1.1",
-    "playwright": "1.43.1",
+    "playwright": "1.48.1",
     "prettier": "3.2.4",
     "prettier-plugin-packagejson": "2.5.2",
     "rimraf": "5.0.5",
