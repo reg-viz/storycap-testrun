@@ -54,7 +54,7 @@ Please set up [`@storybook/test-runner`][storybook-test-runner] beforehand.
 You can start using it immediately by calling the `screenshot` function in `postVisit`.
 
 ```typescript
-// .storybook/tesr-runner.ts
+// .storybook/test-runner.ts
 import type { TestRunnerConfig } from '@storybook/test-runner';
 import { screenshot } from 'storycap-testrun';
 
