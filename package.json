@@ -45,7 +45,7 @@
     "rimraf": "5.0.5",
     "tsup": "8.3.0",
     "typescript": "5.7.2",
-    "typescript-eslint": "7.5.0",
+    "typescript-eslint": "7.18.0",
     "wait-on": "7.2.0",
     "zx": "7.2.3"
   },
