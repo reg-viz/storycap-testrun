@@ -1,4 +1,4 @@
-export type Simplify<T> = { [K in keyof T]: T[K] } & Record<never, never>;
+export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
 export type RequiredDeep<T> = Simplify<
   Required<{
