@@ -1,5 +1,13 @@
 # storycap-testrun
 
+## 1.0.0
+
+### Major Changes
+
+- [#107](https://github.com/reg-viz/storycap-testrun/pull/107) [`5c314a7`](https://github.com/reg-viz/storycap-testrun/commit/5c314a780c4fefd51e293cd315184cad4b82ed21) Thanks [@wadackel](https://github.com/wadackel)! - **BREAKING CHANGE**: Drop support for Node.js 18. The minimum required Node.js version is now 20.
+
+  This change aligns with Node.js LTS lifecycle and ensures better compatibility with modern tooling.
+
 ## 0.0.2
 
 ### Patch Changes
