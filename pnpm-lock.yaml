@@ -21,8 +21,8 @@ importers:
         specifier: 0.22.1
         version: 0.22.1(@types/node@20.19.0)(storybook@7.6.10)
       '@tsconfig/node20':
-        specifier: 20.1.4
-        version: 20.1.4
+        specifier: 20.1.5
+        version: 20.1.5
       '@tsconfig/strictest':
         specifier: 2.0.5
         version: 2.0.5
@@ -2187,8 +2187,8 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@tsconfig/node20@20.1.4':
-    resolution: {integrity: sha512-sqgsT69YFeLWf5NtJ4Xq/xAF8p4ZQHlmGW74Nu2tD4+g5fAsposc4ZfaaPixVu4y01BEiDCWLRDCvDM5JOsRxg==}
+  '@tsconfig/node20@20.1.5':
+    resolution: {integrity: sha512-Vm8e3WxDTqMGPU4GATF9keQAIy1Drd7bPwlgzKJnZtoOsTm1tduUTbDjg0W5qERvGuxPI2h9RbMufH0YdfBylA==}
 
   '@tsconfig/strictest@2.0.5':
     resolution: {integrity: sha512-ec4tjL2Rr0pkZ5hww65c+EEPYwxOi4Ryv+0MtjeaSQRJyq322Q27eOQiFbuNgw2hpL4hB1/W/HBGk3VKS43osg==}
@@ -8924,7 +8924,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 9.3.4
 
-  '@tsconfig/node20@20.1.4': {}
+  '@tsconfig/node20@20.1.5': {}
 
   '@tsconfig/strictest@2.0.5': {}
 
