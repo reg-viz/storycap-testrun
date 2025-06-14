@@ -8,15 +8,15 @@
 
 ---
 
-**storycap-testrun** features stability checks for Stories similar to those internal to [storycap][storycap], allowing for accurate screenshot capture of Stories :camera:
+**storycap-testrun** provides stability checks for Stories similar to those used internally by [storycap][storycap], allowing for accurate screenshot capture of Stories :camera:
 
 ## Why storycap-testrun?
 
 When conducting Visual Regression Testing using [`@storybook/test-runner`][storybook-test-runner], `waitForPageReady` is used for waiting before taking screenshots. This supports only minimal stability checks. Therefore, in practical use cases, it's necessary to devise ways for more accurate stability checks.
 
-[storycap][storycap] achieves stable photography by monitoring various metrics when Stories are rendered in the browser using [CDP][cdp]. **storycap-testrun** follows the strategy of [storycap][storycap], performing screenshot capture that accurately checks the stability of the rendering content. Additionally, it offers a mechanism to check the stability of rendering content by verifying that the hash values of multiple captured screenshot images are identical.
+[storycap][storycap] achieves stable screenshot capture by monitoring various metrics when Stories are rendered in the browser using [CDP][cdp]. **storycap-testrun** follows the strategy of [storycap][storycap], performing screenshot capture that accurately checks the stability of the rendering content. Additionally, it offers a mechanism to check the stability of rendering content by verifying that the hash values of multiple captured screenshot images are identical.
 
-Furthermore, it provides heuristic utilities for avoiding flaky tests, such as Masking and Removal, which can be specified in the Parameters for each Story.
+Additionally, it provides utilities to avoid flaky tests, such as Masking and Removal, which can be specified in the Parameters for each Story.
 
 ### Features
 
@@ -29,7 +29,7 @@ Furthermore, it provides heuristic utilities for avoiding flaky tests, such as M
 
 ### Limitation
 
-- Can't capture multiple Viewports
+- Cannot capture multiple viewports
   - A limitation of [`@storybook/test-runner`][storybook-test-runner]. It can be addressed by running tests in multiple Viewports as needed.
 - Doesn't support variants like `:hover`, `:focus`, clicks, etc.
   - Although this is a convenient feature supported by [storycap][storycap], it is not supported to avoid affecting other processes executed in `postVisit`.
@@ -76,7 +76,7 @@ export default config;
 $ test-storybook
 ```
 
-Then, simply run [`@storybook/test-runner`][storybook-test-runner] appropriately.
+Then, run [`@storybook/test-runner`][storybook-test-runner].
 
 By default, the screenshot images are saved in the `__screenshots__` directory.
 
@@ -144,7 +144,7 @@ When specifying a `string`, the following templates can be used:
 **Type:** `boolean`  
 **Default:** `true`
 
-When `true` is specified, it monitors several metrics related to the rendering of the Story and performs stability checks.
+When set to `true`, it monitors several metrics related to the rendering of the Story and performs stability checks.
 
 > [!WARNING]  
 > As this process depends on [CDP][cdp], it works only in Chromium browsers. If enabled in browsers other than Chromium, a warning will be displayed.
@@ -161,7 +161,7 @@ The number of retries during metrics monitoring. It continues monitoring for the
 **Type:** `boolean`  
 **Default:** `true`
 
-It calculates the hash value of the screenshot image and checks the stability of the rendering content by ensuring that there are no changes in the image.
+This option calculates the hash value of the screenshot image and checks the stability of the rendering content by ensuring that there are no changes in the image.
 
 > [!TIP]  
 > In the case of Chromium, `flakiness.metrics.enabled` alone is often sufficient. Enabling this option means capturing screenshots at least twice, so it's recommended to disable it if it leads to performance degradation.
