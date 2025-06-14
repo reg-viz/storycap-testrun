@@ -48,8 +48,8 @@ importers:
         specifier: 14.1.1
         version: 14.1.1
       playwright:
-        specifier: 1.49.0
-        version: 1.49.0
+        specifier: 1.53.0
+        version: 1.53.0
       prettier:
         specifier: 3.5.3
         version: 3.5.3
@@ -5492,13 +5492,18 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  playwright-core@1.53.0:
+    resolution: {integrity: sha512-mGLg8m0pm4+mmtB7M89Xw/GSqoNC+twivl8ITteqvAndachozYe2ZA7srU6uleV1vEdAHYqjq+SV8SNxRRFYBw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   playwright@1.41.1:
     resolution: {integrity: sha512-gdZAWG97oUnbBdRL3GuBvX3nDDmUOuqzV/D24dytqlKt+eI5KbwusluZRGljx1YoJKZ2NRPaeWiFTeGZO7SosQ==}
     engines: {node: '>=16'}
     hasBin: true
 
-  playwright@1.49.0:
-    resolution: {integrity: sha512-eKpmys0UFDnfNb3vfsf8Vx2LEOtflgRebl0Im2eQQnYMA4Aqd+Zw8bEOB+7ZKvN76901mRnqdsiOGKxzVTbi7A==}
+  playwright@1.53.0:
+    resolution: {integrity: sha512-ghGNnIEYZC4E+YtclRn4/p6oYbdPiASELBIYkBXfaTVKreQUYbMUYQDwS12a8F0/HtIjr/CkGjtwABeFPGcS4Q==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9545,7 +9550,7 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0(@types/node@20.19.0))
       node-fetch: 2.7.0
-      playwright: 1.41.1
+      playwright: 1.53.0
       read-pkg-up: 7.0.1
       tempy: 1.0.1
       ts-dedent: 2.2.0
@@ -9581,7 +9586,7 @@ snapshots:
       jest-runner: 29.7.0
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0(@types/node@20.19.0))
-      playwright: 1.49.0
+      playwright: 1.53.0
     transitivePeerDependencies:
       - '@swc/helpers'
       - '@types/node'
@@ -9612,7 +9617,7 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0(@types/node@20.19.0))
       nyc: 15.1.0
-      playwright: 1.49.0
+      playwright: 1.53.0
       storybook: 8.6.14(prettier@3.5.3)
     transitivePeerDependencies:
       - '@swc/helpers'
@@ -13231,15 +13236,17 @@ snapshots:
 
   playwright-core@1.49.0: {}
 
+  playwright-core@1.53.0: {}
+
   playwright@1.41.1:
     dependencies:
       playwright-core: 1.41.1
     optionalDependencies:
       fsevents: 2.3.2
 
-  playwright@1.49.0:
+  playwright@1.53.0:
     dependencies:
-      playwright-core: 1.49.0
+      playwright-core: 1.53.0
     optionalDependencies:
       fsevents: 2.3.2
 
