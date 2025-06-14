@@ -1,5 +1,5 @@
 ---
-"storycap-testrun": major
+'storycap-testrun': major
 ---
 
 **BREAKING CHANGE**: Drop support for Node.js 18. The minimum required Node.js version is now 20.
