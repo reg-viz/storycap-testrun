@@ -33,7 +33,7 @@
     "@tsconfig/node20": "20.1.4",
     "@tsconfig/strictest": "2.0.5",
     "@types/node": "20.17.9",
-    "concurrently": "8.2.2",
+    "concurrently": "9.1.2",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-import": "2.31.0",
