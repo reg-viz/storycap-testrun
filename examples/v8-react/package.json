@@ -1,0 +1,30 @@
+{
+  "name": "@examples/v8-react",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf storybook-static __screenshots__",
+    "storybook": "storybook dev -p 6007",
+    "storybook:build": "storybook build",
+    "storybook:serve": "http-server storybook-static --port 6007 --silent",
+    "storybook:test": "wait-on tcp:127.0.0.1:6007 && test-storybook --url http://127.0.0.1:6007",
+    "test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm storybook:build --quiet --test && pnpm storybook:serve\" \"pnpm storybook:test\""
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "8.6.14",
+    "@storybook/addon-interactions": "8.6.14",
+    "@storybook/addon-links": "8.6.14",
+    "@storybook/addon-onboarding": "8.6.14",
+    "@storybook/blocks": "8.6.14",
+    "@storybook/react": "8.6.14",
+    "@storybook/react-vite": "8.6.14",
+    "@storybook/test": "8.6.14",
+    "@storybook/test-runner": "^0.17.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "8.6.14",
+    "storycap-testrun": "workspace:*",
+    "vite": "^4.5.2"
+  }
+}
