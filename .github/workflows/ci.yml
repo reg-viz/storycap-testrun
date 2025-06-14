@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [18, 20]
+        node: [20]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node
@@ -23,7 +23,7 @@ jobs:
     needs: [setup]
     strategy:
       matrix:
-        node: [18, 20]
+        node: [20]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node
@@ -42,7 +42,7 @@ jobs:
     needs: [build]
     strategy:
       matrix:
-        node: [18, 20]
+        node: [20]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node

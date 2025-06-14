@@ -36,7 +36,7 @@ Furthermore, it provides heuristic utilities for avoiding flaky tests, such as M
 
 ## Requirements
 
-- Node.js >= 18
+- Node.js >= 20
 - [`@storybook/test-runner`][storybook-test-runner] >= 0.x
 
 ## Installation
