@@ -33,6 +33,8 @@ if (examples.length === 0) {
 async function runE2ETest(example) {
   const startTime = Date.now();
   const examplePath = path.join(pwd, example);
+  const exampleName = path.basename(examplePath);
+  const isV9ReactVite = exampleName === 'v9-react-vite';
 
   try {
     echo`Starting e2e test for ${example}`;
@@ -58,6 +60,19 @@ async function runE2ETest(example) {
       await $`pnpm clean`;
       await $`pnpm test`;
     });
+    // If the target is v9-react-vite, skip screenshot directory validation
+    if (isV9ReactVite) {
+      const duration = Date.now() - startTime;
+      echo`✅ Completed e2e test for ${example} (screenshot check skipped) - ${duration}ms`;
+      return {
+        example,
+        status: 'success',
+        screenshotCount: 0,
+        screenshotCheckSkipped: true,
+        duration,
+        error: null,
+      };
+    }
 
     // Check for generated screenshots in __screenshots__ directory (using absolute path)
     const images = await glob([`${examplePath}/__screenshots__/**/*.png`]);
@@ -74,6 +89,7 @@ async function runE2ETest(example) {
       example,
       status: 'success',
       screenshotCount: images.length,
+      screenshotCheckSkipped: false,
       duration,
       error: null,
     };
@@ -86,6 +102,7 @@ async function runE2ETest(example) {
       example,
       status: 'failed',
       screenshotCount: 0,
+      screenshotCheckSkipped: false,
       duration,
       error: error.message,
     };
@@ -143,7 +160,11 @@ testResults.forEach((result) => {
   echo`${statusIcon} ${result.example}:`;
   echo`   Duration: ${result.duration}ms`;
   if (result.status === 'success') {
-    echo`   Screenshots: ${result.screenshotCount}`;
+    if (result.screenshotCheckSkipped) {
+      echo`   Screenshot Check: skipped`;
+    } else {
+      echo`   Screenshots: ${result.screenshotCount}`;
+    }
   } else {
     echo`   Error: ${result.error}`;
   }

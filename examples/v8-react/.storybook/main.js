@@ -19,7 +19,6 @@ const config = {
   viteFinal: async (config) => {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
-      ...config.resolve.alias,
       '@storybook/react-dom-shim': '@storybook/react-dom-shim',
     };
     return config;
