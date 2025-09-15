@@ -44,7 +44,7 @@ async function runE2ETest(example) {
       await fs.rm('node_modules', { recursive: true, force: true });
 
       // All commands run within the example directory
-      await $`pnpm install --ignore-workspace`;
+      await $`pnpm install`;
 
       // Install Playwright browsers for each example
       // CI: install without system deps (already installed via ci.yaml)
