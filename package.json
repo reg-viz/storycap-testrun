@@ -19,12 +19,6 @@
     "test": "pnpm test:e2e",
     "test:e2e": "zx scripts/e2e.js"
   },
-  "prettier": {
-    "plugins": [
-      "prettier-plugin-packagejson"
-    ],
-    "singleQuote": true
-  },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
     "@changesets/cli": "2.29.4",
