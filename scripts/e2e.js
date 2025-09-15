@@ -50,7 +50,8 @@ async function runE2ETest(example) {
       if (!process.env.CI) {
         await $`pnpm exec playwright install --with-deps chromium`;
       } else {
-        echo`Skipping Playwright install in CI environment`;
+        echo`Installing Playwright browser binary only in CI environment`;
+        await $`pnpm exec playwright install chromium`;
       }
 
       await $`pnpm clean`;
