@@ -46,12 +46,10 @@ async function runE2ETest(example) {
       // All commands run within the example directory
       await $`pnpm install --ignore-workspace`;
 
-      // Skip Playwright install in CI environment to avoid apt-get lock conflicts
+      // Install Playwright browsers only in local environment
+      // CI environment already has browsers installed via ci.yaml
       if (!process.env.CI) {
         await $`pnpm exec playwright install --with-deps chromium`;
-      } else {
-        echo`Installing Playwright browser binary only in CI environment`;
-        await $`pnpm exec playwright install chromium`;
       }
 
       await $`pnpm clean`;
