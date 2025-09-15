@@ -83,18 +83,22 @@ jobs:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/setup-node
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - uses: actions/download-artifact@v4
         with:
           name: dist-${{ env.NODE_VERSION }}
           path: packages
+
       - name: Creating .npmrc
         run: |
           cat << EOF > ".npmrc"
             //registry.npmjs.org/:_authToken=$NPM_TOKEN
           EOF
+
       - name: Create Release Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
