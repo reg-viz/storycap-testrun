@@ -19,10 +19,14 @@
     "@storybook/react-vite": "^7.6.10",
     "@storybook/test": "^7.6.10",
     "@storybook/test-runner": "^0.16.0",
+    "concurrently": "^9.1.2",
+    "http-server": "^14.1.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rimraf": "^6.0.1",
     "storybook": "^7.6.10",
-    "storycap-testrun": "workspace:*"
+    "storycap-testrun": "file:../../packages/storycap-testrun",
+    "wait-on": "^8.0.3"
   }
 }
