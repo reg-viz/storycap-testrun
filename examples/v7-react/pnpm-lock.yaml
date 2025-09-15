@@ -41,6 +41,9 @@ importers:
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
+      playwright:
+        specifier: ^1.49.0
+        version: 1.55.0
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
