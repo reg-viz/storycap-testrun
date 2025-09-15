@@ -1,0 +1,57 @@
+{
+  // Base configurations
+  extends: [
+    'config:js-lib',
+    ':semanticCommits',
+    ':semanticCommitTypeAll(chore)',
+    ':semanticCommitScopeDisabled',
+  ],
+
+  labels: ['A-dependencies'],
+
+  // Separate major from minor/patch updates
+  separateMajorMinor: true,
+
+  // Major updates with stability days
+  major: {
+    stabilityDays: 7,
+  },
+
+  // Package rules for grouping
+  packageRules: [
+    // Group @tsconfig/* packages
+    {
+      matchPackageNames: ['@tsconfig/*'],
+      groupName: 'tsconfig packages',
+      groupSlug: 'tsconfig',
+    },
+
+    // Group @changesets/* packages
+    {
+      matchPackageNames: ['@changesets/*'],
+      groupName: 'changesets packages',
+      groupSlug: 'changesets',
+    },
+
+    // Keep existing typescript-eslint grouping
+    {
+      matchPackageNames: [
+        'eslint',
+        'typescript-eslint',
+        '@typescript-eslint/*',
+      ],
+      groupName: 'typescript-eslint packages',
+      groupSlug: 'typescript-eslint',
+    },
+
+    // Keep existing commitlint grouping
+    {
+      matchPackageNames: ['@commitlint/*'],
+      groupName: 'commitlint packages',
+      groupSlug: 'commitlint',
+    },
+  ],
+
+  // No limit on concurrent PRs
+  prConcurrentLimit: 0,
+}
