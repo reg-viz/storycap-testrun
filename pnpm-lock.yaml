@@ -13,7 +13,7 @@ importers:
         version: 0.5.1
       '@changesets/cli':
         specifier: 2.29.7
-        version: 2.29.7(@types/node@20.19.1)
+        version: 2.29.7(@types/node@20.19.14)
       '@tsconfig/node20':
         specifier: 20.1.6
         version: 20.1.6
@@ -27,10 +27,10 @@ importers:
         specifier: 1.13.0
         version: 1.13.0
       oxlint:
-        specifier: ^1.15.0
+        specifier: 1.15.0
         version: 1.15.0(oxlint-tsgolint@0.2.0)
       oxlint-tsgolint:
-        specifier: ^0.2.0
+        specifier: 0.2.0
         version: 0.2.0
       playwright:
         specifier: 1.49.0
@@ -3794,7 +3794,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.29.7(@types/node@20.19.1)':
+  '@changesets/cli@2.29.7(@types/node@20.19.14)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -3810,7 +3810,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.2(@types/node@20.19.1)
+      '@inquirer/external-editor': 1.0.2(@types/node@20.19.14)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -4063,12 +4063,12 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@inquirer/external-editor@1.0.2(@types/node@20.19.1)':
+  '@inquirer/external-editor@1.0.2(@types/node@20.19.14)':
     dependencies:
       chardet: 2.1.0
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 20.19.1
+      '@types/node': 20.19.14
 
   '@isaacs/balanced-match@4.0.1': {}
 
