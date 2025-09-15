@@ -39,6 +39,9 @@ for (const example of examples) {
   // Install dependencies first since examples are now independent
   await $`pnpm install --ignore-workspace`;
 
+  // Install Playwright browsers since examples are now independent
+  await $`pnpm exec playwright install --with-deps chromium`;
+
   await $`pnpm clean`;
 
   await $`pnpm test`;
