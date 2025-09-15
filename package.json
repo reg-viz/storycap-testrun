@@ -15,6 +15,7 @@
     "lint": "pnpm lint:prettier && pnpm lint:script",
     "lint:prettier": "prettier --check .",
     "lint:script": "eslint .",
+    "prepare": "lefthook install",
     "release": "changeset publish",
     "test": "pnpm test:e2e",
     "test:e2e": "zx scripts/e2e.js"
@@ -30,6 +31,7 @@
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-import": "2.31.0",
     "globals": "16.2.0",
+    "lefthook": "^1.13.0",
     "playwright": "1.49.0",
     "prettier": "3.5.3",
     "prettier-plugin-packagejson": "2.5.15",
