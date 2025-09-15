@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { $, glob, cd, fs, argv } from 'zx';
+import { $, glob, fs, argv, echo, within } from 'zx';
 
 const pwd = process.cwd();
 
@@ -29,32 +29,131 @@ if (examples.length === 0) {
   throw new Error('No examples found');
 }
 
-for (const example of examples) {
-  console.log(`Starting e2e test for ${example}`);
-  cd(path.join(pwd, example));
+// Run E2E test for a single example using within() for cross-platform compatibility
+async function runE2ETest(example) {
+  const startTime = Date.now();
+  const examplePath = path.join(pwd, example);
 
-  // Remove node_modules to ensure clean install (especially for local runs)
-  await fs.rm('node_modules', { recursive: true, force: true });
+  try {
+    echo`Starting e2e test for ${example}`;
 
-  // Install dependencies first since examples are now independent
-  await $`pnpm install --ignore-workspace`;
+    await within(async () => {
+      $.cwd = examplePath;
 
-  // Install Playwright browsers since examples are now independent
-  await $`pnpm exec playwright install --with-deps chromium`;
+      // Use Node.js standard fs.rm for cross-platform compatibility
+      await fs.rm('node_modules', { recursive: true, force: true });
 
-  await $`pnpm clean`;
+      // All commands run within the example directory
+      await $`pnpm install --ignore-workspace`;
 
-  await $`pnpm test`;
+      // Install Playwright browsers for each example
+      // CI: install without system deps (already installed via ci.yaml)
+      // Local: install with system deps
+      if (process.env.CI) {
+        await $`pnpm exec playwright install chromium`;
+      } else {
+        await $`pnpm exec playwright install --with-deps chromium`;
+      }
 
-  // Check for generated screenshots in __screenshots__ directory
-  const images = await glob(['__screenshots__/**/*.png']);
-  if (images.length === 0) {
-    throw new Error(
-      `[${example}] Screenshot images does not exist in __screenshots__ directory!`,
-    );
+      await $`pnpm clean`;
+      await $`pnpm test`;
+    });
+
+    // Check for generated screenshots in __screenshots__ directory (using absolute path)
+    const images = await glob([`${examplePath}/__screenshots__/**/*.png`]);
+    if (images.length === 0) {
+      throw new Error(
+        `Screenshot images does not exist in __screenshots__ directory!`,
+      );
+    }
+
+    const duration = Date.now() - startTime;
+    echo`✅ Completed e2e test for ${example} (found ${images.length} screenshot images) - ${duration}ms`;
+
+    return {
+      example,
+      status: 'success',
+      screenshotCount: images.length,
+      duration,
+      error: null,
+    };
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    echo`❌ Failed e2e test for ${example} - ${duration}ms`;
+    echo`Error: ${error.message}`;
+
+    return {
+      example,
+      status: 'failed',
+      screenshotCount: 0,
+      duration,
+      error: error.message,
+    };
+  }
+}
+
+// Run tests with limited concurrency using independent subprocesses
+async function runWithConcurrencyLimit(tasks, limit) {
+  const results = [];
+  const executing = [];
+
+  for (const task of tasks) {
+    const promise = task().then((result) => {
+      executing.splice(executing.indexOf(promise), 1);
+      return result;
+    });
+
+    results.push(promise);
+    executing.push(promise);
+
+    if (executing.length >= limit) {
+      await Promise.race(executing);
+    }
   }
 
-  console.log(
-    `Completed e2e test for ${example} (found ${images.length} screenshot images)`,
-  );
+  return Promise.allSettled(results);
+}
+
+const startTime = Date.now();
+const maxConcurrency = 2;
+echo`Running e2e tests for ${examples.length} examples in parallel (max ${maxConcurrency} concurrent) using independent subprocesses...\n`;
+
+const results = await runWithConcurrencyLimit(
+  examples.map((example) => () => runE2ETest(example)),
+  maxConcurrency,
+);
+
+// Process and display results
+const testResults = results.map((result) => result.value);
+const totalDuration = Date.now() - startTime;
+const successCount = testResults.filter((r) => r.status === 'success').length;
+const failedCount = testResults.filter((r) => r.status === 'failed').length;
+
+echo`\nTest Results Summary`;
+echo`${'='.repeat(50)}`;
+echo`Total Examples: ${examples.length}`;
+echo`Total Duration: ${totalDuration}ms`;
+echo`Success       : ${successCount}`;
+echo`Failed        : ${failedCount}`;
+echo``;
+
+// Display detailed results
+testResults.forEach((result) => {
+  const statusIcon = result.status === 'success' ? '✅' : '❌';
+  echo`${statusIcon} ${result.example}:`;
+  echo`   Duration: ${result.duration}ms`;
+  if (result.status === 'success') {
+    echo`   Screenshots: ${result.screenshotCount}`;
+  } else {
+    echo`   Error: ${result.error}`;
+  }
+  echo``;
+});
+
+// Exit with error code if any test failed
+if (failedCount > 0) {
+  echo`${failedCount} test(s) failed!`;
+  process.exit(1);
+} else {
+  echo`All tests passed!`;
 }
