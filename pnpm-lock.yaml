@@ -51,8 +51,8 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
       zx:
-        specifier: 8.5.5
-        version: 8.5.5
+        specifier: 8.8.1
+        version: 8.8.1
 
   packages/storycap-testrun:
     dependencies:
@@ -3457,8 +3457,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zx@8.5.5:
-    resolution: {integrity: sha512-kzkjV3uqyEthw1IBDbA7Co2djji77vCP1DRvt58aYSMwiX4nyvAkFE8OBSEsOUbDJAst0Yo4asNvMTGG5HGPXA==}
+  zx@8.8.1:
+    resolution: {integrity: sha512-qvsKBnvWHstHKCluKPlEgI/D3+mdiQyMoSSeFR8IX/aXzWIas5A297KxKgPJhuPXdrR6ma0Jzx43+GQ/8sqbrw==}
     engines: {node: '>= 12.17.0'}
     hasBin: true
 
@@ -7237,4 +7237,4 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zx@8.5.5: {}
+  zx@8.8.1: {}
