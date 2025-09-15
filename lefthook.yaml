@@ -4,3 +4,7 @@ pre-commit:
       glob: '*.{js,jsx,ts,tsx,json,css,scss,html,md,yml,yaml}'
       run: pnpm prettier --write {staged_files}
       stage_fixed: true
+    oxlint:
+      glob: '*.{js,jsx,ts,tsx}'
+      run: pnpm oxlint --fix {staged_files}
+      stage_fixed: true

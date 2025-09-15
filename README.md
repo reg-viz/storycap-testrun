@@ -1,6 +1,6 @@
 <h1 align="center">storycap-testrun</h1>
 <p align="center">
-    <a href="https://github.com/reg-viz/storycap-testrun/actions/workflows/ci.yml?query=branch%3Amain"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/reg-viz/storycap-testrun/ci.yml?branch=main&style=flat-square&logo=GitHub%20Actions&logoColor=white"></a>
+    <a href="https://github.com/reg-viz/storycap-testrun/actions/workflows/ci.yaml?query=branch%3Amain"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/reg-viz/storycap-testrun/ci.yaml?branch=main&style=flat-square&logo=GitHub%20Actions&logoColor=white"></a>
     <a href="https://www.npmjs.com/package/storycap-testrun"><img alt="NPM Version" src="https://img.shields.io/npm/v/storycap-testrun?style=flat-square&logo=white"></a>
     <a href="https://github.com/reg-viz/storycap-testrun/blob/main/LICENSE"><img src="https://img.shields.io/github/license/reg-viz/storycap-testrun?label=license&style=flat-square" alt="MIT LICENSE" /></a>
 </p>
