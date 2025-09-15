@@ -31,7 +31,7 @@
     "oxlint-tsgolint": "^0.2.0",
     "playwright": "1.49.0",
     "prettier": "3.5.3",
-    "prettier-plugin-packagejson": "2.5.15",
+    "prettier-plugin-packagejson": "2.5.19",
     "rimraf": "6.0.1",
     "tsup": "8.5.0",
     "typescript": "5.8.3",
