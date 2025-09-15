@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { $, glob, fs, argv, echo } from 'zx';
+import { $, glob, fs, argv, echo, within } from 'zx';
 
 const pwd = process.cwd();
 
@@ -29,7 +29,7 @@ if (examples.length === 0) {
   throw new Error('No examples found');
 }
 
-// Run E2E test for a single example using independent subprocess
+// Run E2E test for a single example using within() for cross-platform compatibility
 async function runE2ETest(example) {
   const startTime = Date.now();
   const examplePath = path.join(pwd, example);
@@ -37,15 +37,25 @@ async function runE2ETest(example) {
   try {
     echo`Starting e2e test for ${example}`;
 
-    // Execute all commands in a single subprocess to avoid cd() conflicts
-    await $`
-      cd ${examplePath} &&
-      rm -rf node_modules &&
-      pnpm install --ignore-workspace &&
-      pnpm exec playwright install --with-deps chromium &&
-      pnpm clean &&
-      pnpm test
-    `;
+    await within(async () => {
+      $.cwd = examplePath;
+
+      // Use Node.js standard fs.rm for cross-platform compatibility
+      await fs.rm('node_modules', { recursive: true, force: true });
+
+      // All commands run within the example directory
+      await $`pnpm install --ignore-workspace`;
+
+      // Skip Playwright install in CI environment to avoid apt-get lock conflicts
+      if (!process.env.CI) {
+        await $`pnpm exec playwright install --with-deps chromium`;
+      } else {
+        echo`Skipping Playwright install in CI environment`;
+      }
+
+      await $`pnpm clean`;
+      await $`pnpm test`;
+    });
 
     // Check for generated screenshots in __screenshots__ directory (using absolute path)
     const images = await glob([`${examplePath}/__screenshots__/**/*.png`]);
