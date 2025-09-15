@@ -15,7 +15,9 @@ if (targetPackage) {
     await fs.access(targetPath);
     examples = [targetPath];
   } catch {
-    throw new Error(`Package '${targetPackage}' not found in examples directory`);
+    throw new Error(
+      `Package '${targetPackage}' not found in examples directory`,
+    );
   }
 } else {
   examples = await glob(['examples/*'], {
@@ -44,8 +46,12 @@ for (const example of examples) {
   // Check for generated screenshots in __screenshots__ directory
   const images = await glob(['__screenshots__/**/*.png']);
   if (images.length === 0) {
-    throw new Error(`[${example}] Screenshot images does not exist in __screenshots__ directory!`);
+    throw new Error(
+      `[${example}] Screenshot images does not exist in __screenshots__ directory!`,
+    );
   }
 
-  console.log(`Completed e2e test for ${example} (found ${images.length} screenshot images)`);
+  console.log(
+    `Completed e2e test for ${example} (found ${images.length} screenshot images)`,
+  );
 }
