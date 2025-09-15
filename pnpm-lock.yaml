@@ -39,7 +39,7 @@ importers:
         specifier: 16.2.0
         version: 16.2.0
       lefthook:
-        specifier: ^1.13.0
+        specifier: 1.13.0
         version: 1.13.0
       playwright:
         specifier: 1.49.0
