@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+env:
+  NODE_VERSION: 20
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -18,6 +21,18 @@ jobs:
       - uses: ./.github/actions/setup-node
         with:
           node-version: ${{ matrix.node }}
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - run: pnpm lint
 
   test:
     runs-on: ubuntu-latest
@@ -48,19 +63,23 @@ jobs:
 
       - run: pnpm test
 
-  lint:
-    runs-on: ubuntu-latest
-    needs: [setup]
-    env:
-      NODE_VERSION: 20
-    steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-
-      - uses: ./.github/actions/setup-node
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && matrix.node == env.NODE_VERSION
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          name: component-screenshots
+          path: __screenshots__/
+          retention-days: 30
 
-      - run: pnpm lint
+      - name: Visual Regression Test
+        uses: reg-viz/reg-actions@480d59a2a63da144e914883346f5120f27701310 # v2
+        if: matrix.node == env.NODE_VERSION
+        with:
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          image-directory-path: './__screenshots__'
+          matching-threshold: 0.1
+          threshold-rate: 0.02
+          enable-antialias: true
 
   pass:
     runs-on: ubuntu-latest
@@ -75,7 +94,6 @@ jobs:
     if: github.repository == 'reg-viz/storycap-testrun' && github.ref == 'refs/heads/main'
     needs: [pass]
     env:
-      NODE_VERSION: 20
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0

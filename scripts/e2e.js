@@ -30,7 +30,7 @@ if (examples.length === 0) {
 }
 
 // Run E2E test for a single example using within() for cross-platform compatibility
-async function runE2ETest(example) {
+const runE2ETest = async (example) => {
   const startTime = Date.now();
   const examplePath = path.join(pwd, example);
   const exampleName = path.basename(examplePath);
@@ -43,7 +43,10 @@ async function runE2ETest(example) {
       $.cwd = examplePath;
 
       // Use Node.js standard fs.rm for cross-platform compatibility
-      await fs.rm('node_modules', { recursive: true, force: true });
+      await fs.rm(path.join(examplePath, 'node_modules'), {
+        recursive: true,
+        force: true,
+      });
 
       // All commands run within the example directory
       await $`pnpm install`;
@@ -107,10 +110,69 @@ async function runE2ETest(example) {
       error: error.message,
     };
   }
-}
+};
+
+// Copy screenshots from examples to root __screenshots__ directory
+const copyScreenshotsToRoot = async (successfulResults) => {
+  const rootScreenshotsDir = path.join(pwd, '__screenshots__');
+
+  // Create root __screenshots__ directory and clear existing content
+  await fs.rm(rootScreenshotsDir, { recursive: true, force: true });
+  await fs.mkdir(rootScreenshotsDir, { recursive: true });
+
+  const copyTasks = successfulResults
+    .filter(
+      (result) =>
+        result.status === 'success' &&
+        !result.screenshotCheckSkipped &&
+        result.screenshotCount > 0,
+    )
+    .map(async (result) => {
+      const exampleName = path.basename(result.example);
+      const sourceDir = path.join(pwd, result.example, '__screenshots__');
+      const targetDir = path.join(rootScreenshotsDir, exampleName);
+
+      try {
+        // Check if source directory exists
+        await fs.access(sourceDir);
+
+        // Copy entire __screenshots__ directory content to target
+        await fs.cp(sourceDir, targetDir, { recursive: true });
+
+        echo`📸 Copied screenshots from ${result.example} to __screenshots__/${exampleName}`;
+        return { example: exampleName, status: 'success' };
+      } catch (error) {
+        echo`⚠️  Failed to copy screenshots from ${result.example}: ${error.message}`;
+        return { example: exampleName, status: 'failed', error: error.message };
+      }
+    });
+
+  if (copyTasks.length === 0) {
+    echo`📸 No screenshots to copy (all tests skipped screenshot validation or failed)`;
+    return [];
+  }
+
+  echo`📸 Copying screenshots from ${copyTasks.length} successful examples to root __screenshots__ directory...`;
+  const copyResults = await Promise.allSettled(copyTasks);
+
+  const successfulCopies = copyResults.filter(
+    (result) => result.value?.status === 'success',
+  ).length;
+  const failedCopies = copyResults.filter(
+    (result) => result.value?.status === 'failed',
+  ).length;
+
+  if (failedCopies > 0) {
+    echo`⚠️  Screenshot copy completed with ${failedCopies} failures`;
+  } else {
+    echo`✅ Successfully copied screenshots from ${successfulCopies} examples`;
+  }
+
+  return copyResults.map((result) => result.value);
+};
 
 // Run tests with limited concurrency using independent subprocesses
-async function runWithConcurrencyLimit(tasks, limit) {
+const runWithConcurrencyLimit = async (tasks, limit) => {
   const results = [];
   const executing = [];
 
@@ -129,7 +191,7 @@ async function runWithConcurrencyLimit(tasks, limit) {
   }
 
   return Promise.allSettled(results);
-}
+};
 
 const startTime = Date.now();
 const maxConcurrency = 2;
@@ -145,6 +207,10 @@ const testResults = results.map((result) => result.value);
 const totalDuration = Date.now() - startTime;
 const successCount = testResults.filter((r) => r.status === 'success').length;
 const failedCount = testResults.filter((r) => r.status === 'failed').length;
+
+// Copy screenshots to root directory after all tests complete
+echo`\nCopying screenshots to root directory...`;
+await copyScreenshotsToRoot(testResults);
 
 echo`\nTest Results Summary`;
 echo`${'='.repeat(50)}`;
