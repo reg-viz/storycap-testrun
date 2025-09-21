@@ -5,7 +5,7 @@
     { "repo": "reg-viz/storycap-testrun" }
   ],
   "commit": false,
-  "fixed": [["storycap-testrun"]],
+  "fixed": [["@storycap-testrun/*"]],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

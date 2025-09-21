@@ -1,5 +1,27 @@
+minimumReleaseAge: 10080
+
 packages:
   - packages/*
+  - examples/*
+
+catalog:
+  '@storybook/test-runner': ^0.23.0
+  concurrently: ^9.1.2
+  http-server: ^14.1.1
+  playwright: 1.55.0
+  prop-types: ^15.8.1
+  rimraf: ^6.0.1
+  wait-on: ^8.0.3
+
+catalogs:
+  react18:
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  react19:
+    react: ^19.1.1
+    react-dom: ^19.1.1
 
 onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
   - lefthook

@@ -1,0 +1,74 @@
+{
+  "name": "@storycap-testrun/node",
+  "version": "1.0.0",
+  "description": "Node.js screenshot capture for Storybook Test Runner - Provides stable screenshot functionality using Playwright for visual regression testing",
+  "keywords": [
+    "storybook",
+    "storybook-addon",
+    "storycap",
+    "addon",
+    "playwright",
+    "screenshot",
+    "visual-testing",
+    "testing",
+    "test"
+  ],
+  "homepage": "https://github.com/reg-viz/storycap-testrun",
+  "bugs": {
+    "url": "https://github.com/reg-viz/storycap-testrun/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reg-viz/storycap-testrun.git",
+    "directory": "packages/node"
+  },
+  "license": "MIT",
+  "author": "wadackel",
+  "contributors": [
+    "Yosuke Kurami"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@storycap-testrun/internal": "workspace:*"
+  },
+  "devDependencies": {
+    "@storybook/test-runner": "catalog:"
+  },
+  "peerDependencies": {
+    "@storybook/test-runner": "*",
+    "playwright": "*"
+  },
+  "tsdown": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "splitting": false,
+    "sourcemap": false,
+    "clean": true,
+    "minify": true,
+    "dts": true
+  }
+}

@@ -1,6 +1,7 @@
 import { defineConfig, defineProject } from 'vitest/config';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
+import storycap from '@storycap-testrun/browser/vitest-plugin';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +24,17 @@ export default defineConfig({
             // This should match your package.json script to run Storybook
             // The --ci flag will skip prompts and not open a browser
             storybookScript: 'pnpm storybook --ci',
+          }),
+          storycap({
+            output: {
+              file: (context) =>
+                path.join(
+                  context.file
+                    .slice(`stories${path.sep}`.length)
+                    .replaceAll('.stories.js', ''),
+                  `${context.name}.png`,
+                ),
+            },
           }),
         ],
         test: {
