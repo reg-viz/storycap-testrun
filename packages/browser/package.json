@@ -58,8 +58,8 @@
     "@storycap-testrun/internal": "workspace:*"
   },
   "devDependencies": {
-    "@vitest/browser": "^3.2.4",
-    "vitest": "^3.2.4"
+    "@vitest/browser": "3.2.4",
+    "vitest": "3.2.4"
   },
   "peerDependencies": {
     "@vitest/browser": "*"
