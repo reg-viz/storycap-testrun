@@ -286,6 +286,10 @@ Masks elements corresponding to the CSS selector with a rectangle. Useful for hi
 
 Removes elements corresponding to the CSS selector.
 
+## CHANGELOG
+
+See [CHANGELOG.md](./CHANGELOG.md).
+
 ## License
 
 [MIT © reg-viz](../../LICENSE)
