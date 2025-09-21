@@ -3,9 +3,18 @@
     <a href="https://github.com/reg-viz/storycap-testrun/actions/workflows/ci.yaml?query=branch%3Amain"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/reg-viz/storycap-testrun/ci.yaml?branch=main&style=flat-square&logo=GitHub%20Actions&logoColor=white"></a>
     <a href="https://github.com/reg-viz/storycap-testrun/blob/main/LICENSE"><img src="https://img.shields.io/github/license/reg-viz/storycap-testrun?label=license&style=flat-square" alt="MIT LICENSE" /></a>
 </p>
-<p align="center">Stable visual testing for Storybook - Supporting both <a href="https://github.com/storybookjs/test-runner"><code>@storybook/test-runner</code></a> and <a href="https://github.com/storybookjs/addon-vitest"><code>@storybook/addon-vitest</code></a> workflows.</p>
+<p align="center">Stable visual testing for Storybook - Supporting both <a href="https://github.com/storybookjs/test-runner"><code>@storybook/test-runner</code></a> and <a href="https://storybook.js.org/docs/writing-tests/integrations/vitest-addon"><code>@storybook/addon-vitest</code></a> workflows.</p>
 
----
+> [!WARNING]
+>
+> **Migration Notice for Existing Users**
+>
+> If you're currently using the legacy `storycap-testrun` package, please note that **v2 introduces breaking changes** with a new package structure.
+>
+> - **For `@storybook/test-runner` users**: Migrate to `@storycap-testrun/node`
+> - **For `@storybook/addon-vitest` users**: Use `@storycap-testrun/browser`
+>
+> **👉 [See the complete Migration Guide](./MIGRATION.md)** for step-by-step upgrade instructions.
 
 **storycap-testrun** implements the same stability checking approach as [storycap][storycap], enabling reliable screenshot capture for Visual Regression Testing in Storybook workflows :camera:
 
@@ -152,10 +161,6 @@ For detailed API documentation, configuration options, and advanced usage, pleas
 
 - [Vitest + React example](./examples/v9-react-vite) - Using `@storycap-testrun/browser`
 - [Test Runner + React example](./examples/v8-react) - Using `@storycap-testrun/node`
-
-## CHANGELOG
-
-See [CHANGELOG.md](./packages/storycap-testrun/CHANGELOG.md).
 
 ## License
 
