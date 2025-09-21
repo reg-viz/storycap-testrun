@@ -1,6 +1,6 @@
 {
   "name": "@storycap-testrun/browser",
-  "version": "2.0.0-canary.0",
+  "version": "2.0.0",
   "description": "Screenshot capture for Storybook addon-vitest - Provides stable visual testing functionality and Vitest plugin for Storybook stories running in browser environments",
   "keywords": [
     "storybook",
