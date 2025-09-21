@@ -9,6 +9,11 @@ on:
 env:
   NODE_VERSION: 20
 
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -108,8 +113,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'reg-viz/storycap-testrun' && github.ref == 'refs/heads/main'
     needs: [pass]
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
@@ -118,12 +121,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - run: pnpm build
-
-      - name: Creating .npmrc
-        run: |
-          cat << EOF > ".npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          EOF
 
       - name: Create Release Pull Request
         env:
