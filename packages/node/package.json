@@ -57,6 +57,9 @@
     "@storybook/test-runner": "*",
     "playwright": "*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "tsdown": {
     "entry": [
       "src/index.ts"
