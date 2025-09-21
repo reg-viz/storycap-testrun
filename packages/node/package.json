@@ -1,6 +1,6 @@
 {
   "name": "@storycap-testrun/node",
-  "version": "2.0.0-canary.0",
+  "version": "2.0.0",
   "description": "Node.js screenshot capture for Storybook Test Runner - Provides stable screenshot functionality using Playwright for visual regression testing",
   "keywords": [
     "storybook",
