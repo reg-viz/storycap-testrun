@@ -64,6 +64,9 @@
   "peerDependencies": {
     "@vitest/browser": "*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "tsdown": {
     "entry": [
       "src/index.ts",
