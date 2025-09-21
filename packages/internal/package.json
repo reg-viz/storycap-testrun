@@ -1,6 +1,6 @@
 {
   "name": "@storycap-testrun/internal",
-  "version": "1.0.0",
+  "version": "2.0.0-canary.0",
   "description": "Core utilities and shared types for storycap-testrun - Provides screenshot options, stability checks, hook processing, and common functionality for browser and Node.js environments",
   "keywords": [
     "storybook",
