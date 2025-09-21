@@ -1,24 +1,56 @@
 <h1 align="center">storycap-testrun</h1>
 <p align="center">
     <a href="https://github.com/reg-viz/storycap-testrun/actions/workflows/ci.yaml?query=branch%3Amain"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/reg-viz/storycap-testrun/ci.yaml?branch=main&style=flat-square&logo=GitHub%20Actions&logoColor=white"></a>
-    <a href="https://www.npmjs.com/package/storycap-testrun"><img alt="NPM Version" src="https://img.shields.io/npm/v/storycap-testrun?style=flat-square&logo=white"></a>
     <a href="https://github.com/reg-viz/storycap-testrun/blob/main/LICENSE"><img src="https://img.shields.io/github/license/reg-viz/storycap-testrun?label=license&style=flat-square" alt="MIT LICENSE" /></a>
 </p>
-<p align="center">A utility that provides stable screenshot capture functionality using <a href="https://github.com/storybookjs/test-runner"><code>@storybook/test-runner</code></a>.</p>
+<p align="center">Stable visual testing for Storybook - Supporting both <a href="https://github.com/storybookjs/test-runner"><code>@storybook/test-runner</code></a> and <a href="https://github.com/storybookjs/addon-vitest"><code>@storybook/addon-vitest</code></a> workflows.</p>
 
 ---
 
-**storycap-testrun** provides stability checks for Stories similar to those used internally by [storycap][storycap], allowing for accurate screenshot capture of Stories :camera:
+**storycap-testrun** implements the same stability checking approach as [storycap][storycap], enabling reliable screenshot capture for Visual Regression Testing in Storybook workflows :camera:
+
+## Packages
+
+This monorepo contains three packages:
+
+### [@storycap-testrun/browser](./packages/browser)
+
+Screenshot capture for **Storybook addon-vitest** - Provides stable visual testing functionality and Vitest plugin for Storybook stories running in browser environments.
+
+### [@storycap-testrun/node](./packages/node)
+
+Node.js screenshot capture for **Storybook Test Runner** - Provides stable screenshot functionality using Playwright for visual regression testing.
 
 ## Why storycap-testrun?
 
-When conducting Visual Regression Testing using [`@storybook/test-runner`][storybook-test-runner], `waitForPageReady` is used for waiting before taking screenshots. This supports only minimal stability checks. Therefore, in practical use cases, it's necessary to devise ways for more accurate stability checks.
+### The Problem
 
-[storycap][storycap] achieves stable screenshot capture by monitoring various metrics when Stories are rendered in the browser using [CDP][cdp]. **storycap-testrun** follows the strategy of [storycap][storycap], performing screenshot capture that accurately checks the stability of the rendering content. Additionally, it offers a mechanism to check the stability of rendering content by verifying that the hash values of multiple captured screenshot images are identical.
+Visual Regression Testing in Storybook faces different challenges depending on your testing framework:
 
-Additionally, it provides utilities to avoid flaky tests, such as Masking and Removal, which can be specified in the Parameters for each Story.
+**Common challenges:**
 
-### Features
+- Incomplete rendering detection leads to inconsistent screenshots
+- Animation and dynamic content cause flaky test results
+- No built-in mechanisms to handle unstable elements
+
+**Framework-specific limitations:**
+
+- `@storybook/test-runner`: Standard `waitForPageReady` provides only minimal stability checks
+- `@storybook/addon-vitest`: Basic screenshot APIs lack stability detection and flexible configuration options
+
+### The Solution
+
+[storycap][storycap] solved this by monitoring browser rendering metrics through [CDP][cdp] (Chrome DevTools Protocol) to accurately determine when content is fully stable. **storycap-testrun** brings this proven approach to modern Storybook testing workflows.
+
+**Key stability mechanisms:**
+
+- **Metrics monitoring**: Tracks rendering completion through browser performance metrics
+- **Hash verification**: Ensures screenshot consistency by comparing image hashes across multiple captures
+- **Flaky test prevention**: Built-in masking and element removal for dynamic content
+
+This approach significantly reduces visual test flakiness while maintaining fast execution times.
+
+## Features
 
 - High stability checks for rendering content
 - Accurate waiting for Play Function
@@ -26,213 +58,54 @@ Additionally, it provides utilities to avoid flaky tests, such as Masking and Re
 - Masking of unstable elements
 - Removal of unstable elements
 - Skipping of unstable elements
+- Support for both `@storybook/test-runner` and `@storybook/addon-vitest`
+- CDP-based metrics monitoring in Chromium browsers
 
-### Limitation
+## Which Package Should I Use?
 
-- Cannot capture multiple viewports
-  - A limitation of [`@storybook/test-runner`][storybook-test-runner]. It can be addressed by running tests in multiple Viewports as needed.
-- Doesn't support variants like `:hover`, `:focus`, clicks, etc.
-  - Although this is a convenient feature supported by [storycap][storycap], it is not supported to avoid affecting other processes executed in `postVisit`.
+Choose the right package based on your current Storybook testing setup:
 
-## Requirements
+| Testing Framework           | Package                                           |
+| --------------------------- | ------------------------------------------------- |
+| **@storybook/addon-vitest** | [`@storycap-testrun/browser`](./packages/browser) |
+| **@storybook/test-runner**  | [`@storycap-testrun/node`](./packages/node)       |
 
-- Node.js >= 20
-- [`@storybook/test-runner`][storybook-test-runner] >= 0.x
+**Not sure which testing framework you're using?**
 
-## Installation
-
-Install via npm:
-
-```bash
-$ npm install --save-dev storycap-testrun
-```
+- If you run tests with `vitest` command → Use **browser** package
+- If you run tests with `test-storybook` command → Use **node** package
 
 ## Getting Started
 
-Please set up [`@storybook/test-runner`][storybook-test-runner] beforehand.
+Choose the package that matches your testing environment:
 
-You can start using it immediately by calling the `screenshot` function in `postVisit`.
+### For `@storybook/addon-vitest` users
 
-```typescript
-// .storybook/test-runner.ts
-import type { TestRunnerConfig } from '@storybook/test-runner';
-import { screenshot } from 'storycap-testrun';
-
-const config: TestRunnerConfig = {
-  async postVisit(page, context) {
-    await screenshot(page, context, {
-      /* options */
-    });
-  },
-};
-
-export default config;
-```
-
-> [!IMPORTANT]
-> Since the `screenshot` function automatically performs stability checks internally, waiting functions like `waitForPageReady` are unnecessary.
+Use `@storycap-testrun/browser` package for Vitest browser environments.
 
 ```bash
-$ test-storybook
+npm install --save-dev @storycap-testrun/browser
 ```
 
-Then, run [`@storybook/test-runner`][storybook-test-runner].
+**See [@storycap-testrun/browser documentation](./packages/browser) for detailed setup and usage.**
 
-By default, the screenshot images are saved in the `__screenshots__` directory.
+### For `@storybook/test-runner` users
 
-### TypeScript Setup
+Use `@storycap-testrun/node` package for Node.js environments with Playwright.
 
-By importing `ScreenshotParameters` and merging types for the framework you use, you can enable type checking for parameters specified in each Story.
-
-```typescript
-import type { ScreenshotParameters } from 'storycap-testrun';
-
-// Replace it with the framework you are using.
-declare module '@storybook/react' {
-  interface Parameters {
-    screenshot?: ScreenshotParameters;
-  }
-}
+```bash
+npm install --save-dev @storycap-testrun/node
 ```
 
-## API
+**See [@storycap-testrun/node documentation](./packages/node) for detailed setup and usage.**
 
-### `screenshot(page, context, options)`
+## Common Features
 
-- `page: Page`
-  - The Playwright page instance passed in `postVisit`.
-- `context: TestContext`
-  - The test context from [`@storybook/test-runner`][storybook-test-runner] passed in `postVisit`.
-- `options: ScreenshotOptions`
-  - See [Options Section](#options).
-- Returns: `Promise<Buffer | null>`
-  - The buffer of the captured screenshot image. Returns `null` if `skip: true` is specified.
+Both packages share common functionality provided by `@storycap-testrun/internal`:
 
-## Options
+### Story Parameters
 
-Options that can be specified as the third argument in the `screenshot` function.
-
-### `output.dry`
-
-**Type:** `boolean`  
-**Default:** `false`
-
-If `true` is specified, the `screenshot` function will not save the image when executed. This is useful when processing the returned Buffer.
-
-### `output.dir`
-
-**Type:** `string`  
-**Default:** `path.join(process.cwd(), '__screenshots__')`
-
-Specifies the root directory for saving screenshot images.
-
-### `output.file`
-
-**Type:** `string | ((context: TestContext) => string)`  
-**Default:** `path.join('[title]', '[name].png')`
-
-Specifies the file name for the screenshot image of each Story.
-
-When specifying a `string`, the following templates can be used:
-
-- `[id]`: Story ID
-- `[title]`: Story's title
-- `[name]`: Story's name
-
-### `flakiness.metrics.enabled`
-
-**Type:** `boolean`  
-**Default:** `true`
-
-When set to `true`, it monitors several metrics related to the rendering of the Story and performs stability checks.
-
-> [!WARNING]  
-> As this process depends on [CDP][cdp], it works only in Chromium browsers. If enabled in browsers other than Chromium, a warning will be displayed.
-
-### `flakiness.metrics.retries`
-
-**Type:** `number`  
-**Default:** `1000`
-
-The number of retries during metrics monitoring. It continues monitoring for the specified number of frames (1 frame = 16ms) and ensures that the metrics stabilize.
-
-### `flakiness.retake.enabled`
-
-**Type:** `boolean`  
-**Default:** `true`
-
-This option calculates the hash value of the screenshot image and checks the stability of the rendering content by ensuring that there are no changes in the image.
-
-> [!TIP]  
-> In the case of Chromium, `flakiness.metrics.enabled` alone is often sufficient. Enabling this option means capturing screenshots at least twice, so it's recommended to disable it if it leads to performance degradation.
-
-### `flakiness.retake.interval`
-
-**Type:** `number`  
-**Default:** `100`
-
-The interval in milliseconds before attempting to capture the screenshot again. The second capture is performed immediately for hash checking.
-
-### `flakiness.retake.retries`
-
-**Type:** `number`  
-**Default:** `10`
-
-The number of times to repeat capturing the screenshot until the hash values of the images are identical. A value of 3 or more is recommended to achieve the effect of retries.
-
-### `hooks`
-
-**Type:** `ScreenshotHook[]`  
-**Default:** `[]`
-
-Hooks for interrupting processes before and after screenshot capture. Please specify an object that implements the following interface.
-
-```typescript
-export type ScreenshotHook = {
-  setup?: TestHook;
-  preCapture?: TestHook;
-  postCapture?: (
-    page: Page,
-    context: TestContext,
-    image: ScreenshotImage,
-  ) => Promise<void>;
-};
-```
-
-Each is executed in the following lifecycle:
-
-| Method        | Description                                                 |
-| :------------ | :---------------------------------------------------------- |
-| `setup`       | Immediately after the `screenshot` function is executed     |
-| `preCapture`  | After `waitForPageReady` is executed                        |
-| `postCapture` | After the screenshot is captured, before the image is saved |
-
-The built-in functions like Masking and Removal are implemented using Hooks.
-
-### `fullPage`
-
-**Type:** `boolean`  
-**Default:** `true`
-
-See [Page | Playwright][playwright-screenshot].
-
-### `omitBackground`
-
-**Type:** `boolean`  
-**Default:** `false`
-
-See [Page | Playwright][playwright-screenshot].
-
-### `scale`
-
-**Type:** `'css' | 'device'`  
-**Default:** `'device'`
-
-See [Page | Playwright][playwright-screenshot].
-
-## Parameters
-
-These are parameters that can be specified for each Story.
+Configure screenshot behavior for individual stories using these parameters:
 
 ```typescript
 // Button.stories.tsx
@@ -240,41 +113,45 @@ const meta: Meta<typeof Button> = {
   component: Button,
   parameters: {
     screenshot: {
-      /* parameters... */
+      skip: false, // Skip screenshot capture for this story
+      delay: 1000, // Additional delay after stability checks (ms)
+      mask: '.dynamic-element', // Hide dynamic content with colored overlay
+      remove: '.ads, .analytics', // Remove elements before screenshot
     },
   },
 };
-
-export default meta;
 ```
 
-### `skip`
+**Parameter Details:**
 
-**Type:** `boolean`  
-**Default:** `false`
+- **`skip`**: Disable screenshot capture while keeping other tests enabled
+- **`delay`**: Extra wait time after automatic stability detection completes
+- **`mask`**: CSS selector for elements to cover with a colored rectangle (useful for timestamps, random content)
+- **`remove`**: CSS selector for elements to completely remove from the DOM (useful for ads, analytics)
 
-Skips the screenshot capture. Useful in cases where you want to conduct tests with [`@storybook/test-runner`][storybook-test-runner] but disable screenshot capture.
+### Stability Detection
 
-### `delay`
+**Automatic Stability Checks:**
 
-**Type:** `number`  
-**Default:** None
+- **Metrics Monitoring**: Uses Chrome DevTools Protocol to monitor rendering completion signals (layout shifts, network activity, paint events)
+- **Hash Verification**: Captures multiple screenshots and compares their hash values to ensure content stability
+- **Retry Logic**: Automatically retries captures when instability is detected, with configurable limits
 
-The delay in milliseconds before capturing the screenshot. Waits after completing the basic stability checks.
+**Why This Matters:**
 
-### `mask`
+- Eliminates flaky tests caused by incomplete rendering
+- Reduces false positives in visual regression detection
+- Works reliably with animations, lazy-loaded content, and dynamic elements
 
-**Type:** `string | { selector: string; color: string }`  
-**Default:** None
+For detailed API documentation, configuration options, and advanced usage, please refer to the specific package documentation:
 
-Masks elements corresponding to the CSS selector with a rectangle. Useful for hiding elements that inevitably differ in content with each render.
+- [@storycap-testrun/browser documentation](./packages/browser) - For Vitest browser environments
+- [@storycap-testrun/node documentation](./packages/node) - For Node.js environments
 
-### `remove`
+## Examples
 
-**Type:** `string`  
-**Default:** None
-
-Removes elements corresponding to the CSS selector.
+- [Vitest + React example](./examples/v9-react-vite) - Using `@storycap-testrun/browser`
+- [Test Runner + React example](./examples/v8-react) - Using `@storycap-testrun/node`
 
 ## CHANGELOG
 
@@ -288,5 +165,6 @@ See [CHANGELOG.md](./packages/storycap-testrun/CHANGELOG.md).
 
 [storycap]: https://github.com/reg-viz/storycap
 [storybook-test-runner]: https://github.com/storybookjs/test-runner
+[storybook-addon-vitest]: https://storybook.js.org/docs/writing-tests/integrations/vitest-addon
 [cdp]: https://chromedevtools.github.io/devtools-protocol/
 [playwright-screenshot]: https://playwright.dev/docs/api/class-page#page-screenshot

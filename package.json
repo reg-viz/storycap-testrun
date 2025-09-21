@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm -C packages/storycap-testrun build",
+    "build": "pnpm --if-present -r build",
     "canary:enter": "changeset pre enter canary",
     "canary:exit": "changeset pre exit",
     "changelog": "changeset add",
@@ -17,8 +17,10 @@
     "lint:script": "oxlint --type-aware --tsconfig=./tsconfig.base.json",
     "prepare": "lefthook install",
     "release": "changeset publish",
-    "test": "pnpm test:e2e",
-    "test:e2e": "zx scripts/e2e.js"
+    "test": "pnpm test:unit && pnpm test:e2e",
+    "test:e2e": "zx scripts/e2e.js",
+    "test:unit": "vitest run",
+    "typecheck": "pnpm --if-present -r typecheck"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
@@ -26,15 +28,18 @@
     "@tsconfig/node20": "20.1.6",
     "@tsconfig/strictest": "2.0.5",
     "@types/node": "22.18.1",
+    "@vitest/ui": "^3.2.4",
+    "happy-dom": "^15.11.6",
     "lefthook": "1.13.0",
     "oxlint": "1.15.0",
     "oxlint-tsgolint": "0.2.0",
-    "playwright": "1.49.0",
+    "playwright": "catalog:",
     "prettier": "3.6.2",
     "prettier-plugin-packagejson": "2.5.19",
-    "rimraf": "6.0.1",
-    "tsup": "8.5.0",
+    "rimraf": "catalog:",
+    "tsdown": "0.15.2",
     "typescript": "5.9.2",
+    "vitest": "^3.2.4",
     "zx": "8.8.1"
   },
   "packageManager": "pnpm@10.16.1"

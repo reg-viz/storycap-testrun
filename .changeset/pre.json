@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "canary",
+  "initialVersions": {
+    "@storycap-testrun/browser": "1.0.0",
+    "@storycap-testrun/internal": "1.0.0",
+    "@storycap-testrun/node": "1.0.0"
+  },
+  "changesets": []
+}

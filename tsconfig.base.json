@@ -1,6 +1,11 @@
 {
   "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node20/tsconfig"],
   "compilerOptions": {
+    "allowJs": false,
+    "checkJs": false,
+    "declaration": true,
+    "declarationMap": true,
+    "isolatedDeclarations": true,
     "noEmit": true
   }
 }
