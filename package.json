@@ -31,7 +31,7 @@
     "@vitest/ui": "3.2.4",
     "happy-dom": "^15.11.6",
     "lefthook": "1.13.0",
-    "oxlint": "1.15.0",
+    "oxlint": "1.16.0",
     "oxlint-tsgolint": "0.2.0",
     "playwright": "catalog:",
     "prettier": "3.6.2",
