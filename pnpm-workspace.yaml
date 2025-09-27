@@ -11,7 +11,7 @@ catalog:
   playwright: 1.55.0
   prop-types: ^15.8.1
   rimraf: ^6.0.1
-  wait-on: ^8.0.3
+  wait-on: ^9.0.0
 
 catalogs:
   react18:
