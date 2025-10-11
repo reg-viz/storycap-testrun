@@ -12,10 +12,9 @@
   // Separate major from minor/patch updates
   separateMajorMinor: true,
 
-  // Major updates with stability days
-  major: {
-    stabilityDays: 7,
-  },
+  // Wait 7 days after release before creating PRs
+  // This matches pnpm's minimumReleaseAge setting (10080 minutes = 7 days)
+  minimumReleaseAge: '7 days',
 
   // Package rules for grouping
   packageRules: [
