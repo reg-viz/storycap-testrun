@@ -1,0 +1,10 @@
+packages:
+  - '.'
+  - '../../packages/*'
+
+overrides:
+  '@swc/core': 1.10.0
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild

@@ -51,7 +51,7 @@
     "@storycap-testrun/internal": "workspace:*"
   },
   "devDependencies": {
-    "@storybook/test-runner": "catalog:"
+    "@storybook/test-runner": "^0.23.0"
   },
   "peerDependencies": {
     "@storybook/test-runner": "*",
