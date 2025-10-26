@@ -43,12 +43,10 @@ const run = async (example) => {
     await within(async () => {
       $.cwd = dir;
       $.verbose = verbose;
+      $.env = { ...process.env, CI: 'true' };
 
       // Install dependencies for this example workspace
       await $`pnpm install`;
-
-      // Install Playwright browsers with system dependencies
-      await $`pnpm exec playwright install --with-deps chromium`;
 
       await $`pnpm clean`;
       await $`pnpm test`;
