@@ -1,3 +1,4 @@
+/* oxlint-disable no-unused-expressions */
 import path from 'node:path';
 import { $, glob, fs, argv, echo, within } from 'zx';
 
@@ -43,14 +44,11 @@ const run = async (example) => {
       $.cwd = dir;
       $.verbose = verbose;
 
-      // Install Playwright browsers for each example
-      // CI: install without system deps (already installed via ci.yaml)
-      // Local: install with system deps
-      if (process.env.CI) {
-        await $`pnpm exec playwright install chromium`;
-      } else {
-        await $`pnpm exec playwright install --with-deps chromium`;
-      }
+      // Install dependencies for this example workspace
+      await $`pnpm install`;
+
+      // Install Playwright browsers with system dependencies
+      await $`pnpm exec playwright install --with-deps chromium`;
 
       await $`pnpm clean`;
       await $`pnpm test`;
