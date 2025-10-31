@@ -28,7 +28,7 @@
     "@tsconfig/node20": "20.1.6",
     "@tsconfig/strictest": "2.0.6",
     "@types/node": "22.18.11",
-    "@vitest/ui": "3.2.4",
+    "@vitest/ui": "4.0.3",
     "happy-dom": "20.0.7",
     "lefthook": "2.0.0",
     "oxlint": "1.24.0",
@@ -39,7 +39,7 @@
     "rimraf": "^6.0.1",
     "tsdown": "0.15.9",
     "typescript": "5.9.3",
-    "vitest": "3.2.4",
+    "vitest": "4.0.3",
     "zx": "8.8.4"
   },
   "packageManager": "pnpm@10.18.3"
