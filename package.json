@@ -42,5 +42,5 @@
     "vitest": "3.2.4",
     "zx": "8.8.5"
   },
-  "packageManager": "pnpm@10.20.0"
+  "packageManager": "pnpm@10.24.0"
 }
