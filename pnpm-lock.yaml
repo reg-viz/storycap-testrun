@@ -85,7 +85,7 @@ importers:
         version: link:../internal
       playwright:
         specifier: '*'
-        version: 1.55.0
+        version: 1.57.0
     devDependencies:
       '@storybook/test-runner':
         specifier: ^0.23.0
