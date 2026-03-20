@@ -12,7 +12,7 @@ pnpm build
 # Build all packages
 pnpm build
 
-# Lint (prettier + oxlint)
+# Lint (oxfmt + oxlint)
 pnpm lint                    # Check only
 pnpm format                  # Auto-fix
 
@@ -75,14 +75,14 @@ Multi-layer approach:
 - **ESM**: `"type": "module"` throughout. Dual ESM+CJS output via tsdown
 - **TypeScript**: Strict mode via `@tsconfig/strictest`, `isolatedDeclarations: true`
 - **Linter**: oxlint (not ESLint) with type-aware checking. Config in `.oxlintrc.json`
-- **Formatter**: prettier with `prettier-plugin-packagejson`
+- **Formatter**: oxfmt (config in `.oxfmtrc.json`)
 - **Build**: tsdown per package — minified, no sourcemaps, `.d.ts` with declaration maps
 - **Tests co-located**: `*.test.ts` alongside source files
 - **Test environment**: happy-dom for browser package, Node for others
 - **Vitest globals**: `globals: true` — `describe`, `test`, `expect`, `vi` etc. are available without import
 - **Type imports**: Use `import type` for type-only imports (`consistent-type-imports` enforced)
 - **Import order**: Alphabetical, no blank lines between groups (`import/order` enforced)
-- **Pre-commit hooks**: lefthook runs prettier and oxlint on staged files automatically
+- **Pre-commit hooks**: lefthook runs oxfmt and oxlint on staged files automatically
 
 ## Examples
 
