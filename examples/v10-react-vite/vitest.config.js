@@ -1,5 +1,6 @@
 import { defineConfig, defineProject } from 'vitest/config';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
 import react from '@vitejs/plugin-react';
 import storycap from '@storycap-testrun/browser/vitest-plugin';
 import path from 'node:path';
@@ -43,7 +44,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             // Make sure to install Playwright
-            provider: 'playwright',
+            provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
           },

@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["es2023", "dom", "dom.iterable"],
-    "types": ["@vitest/browser/providers/playwright"]
+    "types": ["@vitest/browser-playwright"]
   },
   "include": ["./src/**/*"]
 }

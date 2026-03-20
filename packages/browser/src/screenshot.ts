@@ -3,8 +3,8 @@ import type {
   ResolveScreenshotFilepathParams,
   ResolveScreenshotFilepathResult,
 } from './vitest-plugin';
-import type { BrowserPage } from '@vitest/browser/context';
-import { commands } from '@vitest/browser/context';
+import type { BrowserPage } from 'vitest/browser';
+import { commands } from 'vitest/browser';
 import type { BrowserScreenshotOptions } from './options';
 import {
   createScreenshotFunction,
@@ -16,7 +16,7 @@ import { createRemovalHook } from './hooks/removal';
 import { createMaskingHook } from './hooks/masking';
 import { waitForStable } from './wait-for-stable';
 
-declare module '@vitest/browser/context' {
+declare module 'vitest/browser' {
   interface BrowserCommands {
     resolveScreenshotFilepath: (
       ...params: ResolveScreenshotFilepathParams

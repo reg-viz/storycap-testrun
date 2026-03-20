@@ -1,10 +1,10 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { createBrowserScreenshotAdapter } from './screenshot';
-import type { BrowserPage } from '@vitest/browser/context';
+import type { BrowserPage } from 'vitest/browser';
 import type { TestContext } from 'vitest';
 
 // Mock the Vitest browser commands
-vi.mock('@vitest/browser/context', () => ({
+vi.mock('vitest/browser', () => ({
   commands: {
     resolveScreenshotFilepath: vi
       .fn()
@@ -122,7 +122,7 @@ describe('createBrowserScreenshotAdapter', () => {
   });
 
   test('should resolve filepath using commands', async () => {
-    const { commands } = await import('@vitest/browser/context');
+    const { commands } = await import('vitest/browser');
     const adapter = createBrowserScreenshotAdapter();
     const context = { id: 'test-id', name: 'test-name', file: 'test.ts' };
 

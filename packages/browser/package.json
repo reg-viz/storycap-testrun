@@ -58,11 +58,11 @@
     "@storycap-testrun/internal": "workspace:*"
   },
   "devDependencies": {
-    "@vitest/browser": "4.1.0",
+    "@vitest/browser-playwright": "4.1.0",
     "vitest": "4.1.0"
   },
   "peerDependencies": {
-    "@vitest/browser": "*"
+    "@vitest/browser-playwright": "*"
   },
   "publishConfig": {
     "access": "public"
@@ -75,6 +75,9 @@
     "format": [
       "esm",
       "cjs"
+    ],
+    "external": [
+      "vitest/browser"
     ],
     "splitting": false,
     "sourcemap": false,
