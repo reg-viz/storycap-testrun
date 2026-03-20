@@ -1,6 +1,8 @@
 {
-  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node20/tsconfig"],
+  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node22/tsconfig"],
   "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "allowJs": false,
     "checkJs": false,
     "declaration": true,
