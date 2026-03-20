@@ -10,16 +10,21 @@
   "bugs": {
     "url": "https://github.com/reg-viz/storycap-testrun/issues"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/reg-viz/storycap-testrun.git",
-    "directory": "packages/internal"
-  },
   "license": "MIT",
   "author": "wadackel",
   "contributors": [
     "Yosuke Kurami"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reg-viz/storycap-testrun.git",
+    "directory": "packages/internal"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,11 +33,9 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown",
     "clean": "rimraf dist",
@@ -40,10 +43,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "tsdown": {
+    "clean": true,
+    "dts": true,
     "entry": [
       "src/index.ts"
     ],
@@ -51,10 +53,8 @@
       "esm",
       "cjs"
     ],
-    "splitting": false,
-    "sourcemap": false,
-    "clean": true,
     "minify": true,
-    "dts": true
+    "sourcemap": false,
+    "splitting": false
   }
 }
