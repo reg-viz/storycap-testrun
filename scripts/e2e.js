@@ -48,8 +48,8 @@ const run = async (example) => {
       // Install dependencies for this example workspace
       await $`pnpm install`;
 
-      await $`pnpm clean`;
-      await $`pnpm test`;
+      await $`pnpm run clean`;
+      await $`pnpm run test`;
     });
 
     // Check for generated screenshots in __screenshots__ directory (using absolute path)
