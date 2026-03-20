@@ -14,8 +14,8 @@
     "@storybook/react-vite": "^9.1.5",
     "@storycap-testrun/browser": "workspace:*",
     "@vitejs/plugin-react": "^5.0.2",
-    "@vitest/browser": "^3.2.4",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/browser-playwright": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.0",
     "playwright": "1.57.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
@@ -23,6 +23,6 @@
     "rimraf": "^6.0.1",
     "storybook": "^9.1.5",
     "vite": "^7.1.5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   }
 }

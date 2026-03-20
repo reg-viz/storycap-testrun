@@ -1,5 +1,5 @@
 import type { ScreenshotHook } from '@storycap-testrun/internal';
-import type { BrowserPage } from '@vitest/browser/context';
+import type { BrowserPage } from 'vitest/browser';
 import type { BrowserScreenshotContext } from '../context';
 
 /**

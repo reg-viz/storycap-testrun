@@ -1,6 +1,6 @@
 import type { ScreenshotContext } from '@storycap-testrun/internal';
 import { waitForStableMetrics as waitForStableMetricsBase } from '@storycap-testrun/internal';
-import { cdp, server } from '@vitest/browser/context';
+import { cdp, server } from 'vitest/browser';
 
 const waitForStableMetrics = async (
   context: ScreenshotContext,

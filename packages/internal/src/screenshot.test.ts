@@ -92,12 +92,12 @@ describe('resolveScreenshotFilename', () => {
 });
 
 describe('retakeScreenshotIfNeeded', () => {
-  let takeFn: ReturnType<typeof vi.fn>;
-  let hashFn: ReturnType<typeof vi.fn>;
+  let takeFn: ReturnType<typeof vi.fn<() => Promise<string>>>;
+  let hashFn: ReturnType<typeof vi.fn<(data: string) => Promise<string>>>;
 
   beforeEach(() => {
-    takeFn = vi.fn();
-    hashFn = vi.fn();
+    takeFn = vi.fn<() => Promise<string>>();
+    hashFn = vi.fn<(data: string) => Promise<string>>();
   });
 
   test('should return immediately when retake is disabled', async () => {
@@ -159,6 +159,7 @@ describe('retakeScreenshotIfNeeded', () => {
 
     // Each call should return a different hash to simulate unstable screenshots
     let callCount = 0;
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     hashFn.mockImplementation(() => Promise.resolve(`hash${++callCount}`));
 
     const options = {
