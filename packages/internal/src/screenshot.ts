@@ -242,6 +242,18 @@ export type ScreenshotAdapter<
   createMaskingHook: (
     config: Required<ScreenshotMaskConfig>,
   ) => ScreenshotHook<Page, SContext>;
+
+  /**
+   * Prepares the capture environment before hooks run (e.g., adjust viewport/iframe).
+   * Called before hooks.setup() so that all user hooks see the correct layout.
+   */
+  prepareCapture?: (page: Page, context: SContext) => Promise<void>;
+
+  /**
+   * Restores the capture environment after the full capture flow completes.
+   * Always called in a finally block to guarantee cleanup even on errors.
+   */
+  cleanupCapture?: (page: Page, context: SContext) => Promise<void>;
 };
 
 /**
@@ -283,34 +295,53 @@ export const createScreenshotFunction = <
 
     const processor = createHookProcessor([...hooks, ...opts.hooks]);
 
-    await processor.setup(page, ctx);
+    // Prepare capture environment before any hooks run, so that all user hooks
+    // (setup, preCapture, postCapture) see the correct layout dimensions.
+    await adapter.prepareCapture?.(page, ctx);
 
-    await adapter.waitForStable(page, ctx, {
-      ...opts.flakiness.metrics,
-    });
+    try {
+      await processor.setup(page, ctx);
 
-    if (params.delay != null) {
-      await sleep(params.delay);
+      await adapter.waitForStable(page, ctx, {
+        ...opts.flakiness.metrics,
+      });
+
+      if (params.delay != null) {
+        await sleep(params.delay);
+      }
+
+      await processor.preCapture(page, ctx);
+
+      const filepath = await adapter.resolveFilepath(ctx);
+      const type = JPEG_EXTENSIONS.has(
+        filepath.slice(filepath.lastIndexOf('.')),
+      )
+        ? 'jpeg'
+        : 'png';
+
+      const imageOptions = {
+        ...opts.image,
+        ...(params.fullPage != null && { fullPage: params.fullPage }),
+        ...(params.omitBackground != null && {
+          omitBackground: params.omitBackground,
+        }),
+        ...(params.scale != null && { scale: params.scale }),
+      };
+
+      await retakeScreenshotIfNeeded(
+        async () => {
+          return adapter.takeScreenshot(page, filepath, {
+            ...imageOptions,
+            type,
+          });
+        },
+        adapter.createHash,
+        opts.flakiness,
+      );
+
+      await processor.postCapture(page, ctx, filepath);
+    } finally {
+      await adapter.cleanupCapture?.(page, ctx);
     }
-
-    await processor.preCapture(page, ctx);
-
-    const filepath = await adapter.resolveFilepath(ctx);
-    const type = JPEG_EXTENSIONS.has(filepath.slice(filepath.lastIndexOf('.')))
-      ? 'jpeg'
-      : 'png';
-
-    await retakeScreenshotIfNeeded(
-      async () => {
-        return adapter.takeScreenshot(page, filepath, {
-          ...opts.image,
-          type,
-        });
-      },
-      adapter.createHash,
-      opts.flakiness,
-    );
-
-    await processor.postCapture(page, ctx, filepath);
   };
 };

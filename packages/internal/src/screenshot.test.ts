@@ -283,6 +283,76 @@ describe('createScreenshotFunction', () => {
     );
   });
 
+  test('should override global fullPage with per-story fullPage: false', async () => {
+    mockAdapter.getParameters = vi.fn().mockResolvedValue({ fullPage: false });
+
+    const screenshotFn = createScreenshotFunction(mockAdapter);
+    const mockPage = { id: 'page-1' };
+    const mockContext = { testId: 'test-1' };
+
+    await screenshotFn(mockPage, mockContext);
+
+    expect(mockAdapter.takeScreenshot).toHaveBeenCalledWith(
+      mockPage,
+      '/test/screenshot.png',
+      expect.objectContaining({ fullPage: false }),
+    );
+  });
+
+  test('should override global scale with per-story scale: css', async () => {
+    mockAdapter.getParameters = vi.fn().mockResolvedValue({ scale: 'css' });
+
+    const screenshotFn = createScreenshotFunction(mockAdapter);
+    const mockPage = { id: 'page-1' };
+    const mockContext = { testId: 'test-1' };
+
+    await screenshotFn(mockPage, mockContext);
+
+    expect(mockAdapter.takeScreenshot).toHaveBeenCalledWith(
+      mockPage,
+      '/test/screenshot.png',
+      expect.objectContaining({ scale: 'css' }),
+    );
+  });
+
+  test('should use global defaults when per-story params are null', async () => {
+    mockAdapter.getParameters = vi.fn().mockResolvedValue({ fullPage: null });
+
+    const screenshotFn = createScreenshotFunction(mockAdapter);
+    const mockPage = { id: 'page-1' };
+    const mockContext = { testId: 'test-1' };
+
+    await screenshotFn(mockPage, mockContext);
+
+    expect(mockAdapter.takeScreenshot).toHaveBeenCalledWith(
+      mockPage,
+      '/test/screenshot.png',
+      expect.objectContaining({
+        fullPage: true,
+        omitBackground: false,
+        scale: 'device',
+      }),
+    );
+  });
+
+  test('should pass global image defaults when no per-story overrides', async () => {
+    const screenshotFn = createScreenshotFunction(mockAdapter);
+    const mockPage = { id: 'page-1' };
+    const mockContext = { testId: 'test-1' };
+
+    await screenshotFn(mockPage, mockContext);
+
+    expect(mockAdapter.takeScreenshot).toHaveBeenCalledWith(
+      mockPage,
+      '/test/screenshot.png',
+      expect.objectContaining({
+        fullPage: true,
+        omitBackground: false,
+        scale: 'device',
+      }),
+    );
+  });
+
   test('should apply delay when specified', async () => {
     mockAdapter.getParameters = vi.fn().mockResolvedValue({ delay: 100 });
 

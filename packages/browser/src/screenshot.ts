@@ -1,7 +1,13 @@
 import type { TestContext } from 'vitest';
 import type {
+  PrepareViewportParams,
+  PrepareViewportResult,
   ResolveScreenshotFilepathParams,
   ResolveScreenshotFilepathResult,
+  RestoreViewportParams,
+  RestoreViewportResult,
+  TakeScreenshotParams,
+  TakeScreenshotResult,
 } from './vitest-plugin';
 import type { BrowserPage } from 'vitest/browser';
 import { commands } from 'vitest/browser';
@@ -21,6 +27,15 @@ declare module 'vitest/browser' {
     resolveScreenshotFilepath: (
       ...params: ResolveScreenshotFilepathParams
     ) => ResolveScreenshotFilepathResult;
+    __storycap_takeScreenshot: (
+      ...params: TakeScreenshotParams
+    ) => TakeScreenshotResult;
+    __storycap_prepareViewport: (
+      ...params: PrepareViewportParams
+    ) => PrepareViewportResult;
+    __storycap_restoreViewport: (
+      ...params: RestoreViewportParams
+    ) => RestoreViewportResult;
   }
 }
 
@@ -103,19 +118,21 @@ export const createBrowserScreenshotAdapter = (): ScreenshotAdapter<
     await waitForStable(context, options);
   },
 
-  takeScreenshot: async (page, filepath, options) => {
-    const data = await page.screenshot({
-      path: filepath,
-      save: true,
-      base64: true,
-      animations: 'disabled',
-      caret: 'hide',
+  takeScreenshot: async (_page, filepath, options) => {
+    return commands.__storycap_takeScreenshot(filepath, {
       fullPage: options.fullPage,
       omitBackground: options.omitBackground,
       scale: options.scale,
       type: options.type,
     });
-    return data.base64;
+  },
+
+  prepareCapture: async () => {
+    await commands.__storycap_prepareViewport();
+  },
+
+  cleanupCapture: async () => {
+    await commands.__storycap_restoreViewport();
   },
 
   createAnimationsHook,

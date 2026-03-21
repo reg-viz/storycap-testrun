@@ -27,6 +27,10 @@ export default defineConfig({
             storybookScript: 'pnpm storybook --ci',
           }),
           storycap({
+            viewport: {
+              width: 1280,
+              height: 720,
+            },
             output: {
               file: (context) =>
                 path.join(

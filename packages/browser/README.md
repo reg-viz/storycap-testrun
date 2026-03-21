@@ -67,6 +67,8 @@ This makes it ideal for teams who need more than basic screenshots - providing t
   - **Fallback**: Other browsers use hash verification only (still effective, but slower)
 - **Browser environment constraints**
   - Limited to capabilities available in browser context.
+- **Full-page screenshots with `position: fixed/sticky`**
+  - When capturing full-page screenshots of content taller than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
 
 ## Installation
 
@@ -88,6 +90,7 @@ Add the storycap plugin to your `vitest.config.js`:
 import path from 'node:path';
 import { defineConfig, defineProject } from 'vitest/config';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
 import storycap from '@storycap-testrun/browser/vitest-plugin';
 
 export default defineConfig({
@@ -100,14 +103,17 @@ export default defineConfig({
             storybookScript: 'storybook --ci',
           }),
           storycap({
-            // options...
+            viewport: {
+              width: 1280,
+              height: 720,
+            },
           }),
         ],
         test: {
           name: 'storybook',
           browser: {
             enabled: true,
-            provider: 'playwright',
+            provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
           },
@@ -124,7 +130,7 @@ export default defineConfig({
 Create `.storybook/vitest.setup.ts`:
 
 ```typescript
-import { afterEach } from 'vitest';
+import { afterEach, beforeEach } from 'vitest';
 import { page } from '@vitest/browser/context';
 import { screenshot } from '@storycap-testrun/browser';
 import { setProjectAnnotations } from '@storybook/react-vite'; // Adjust for your framework
@@ -132,17 +138,30 @@ import * as projectAnnotations from './preview';
 
 setProjectAnnotations([projectAnnotations]);
 
+// Recommended: set the viewport to match the storycap plugin's viewport option
+beforeEach(async () => {
+  await page.viewport(1280, 720);
+});
+
 afterEach(async (context) => {
   await screenshot(page, context);
 });
 ```
 
-**Why `afterEach`?**
+**`beforeEach` with `page.viewport()` (recommended)**
+
+The storycap plugin's `viewport` option controls the screenshot capture dimensions — screenshots will be taken at the specified size regardless of this setting. However, `page.viewport()` controls the viewport during **story rendering**, which affects:
+
+- **Responsive layouts**: Breakpoint-dependent rendering (e.g., mobile vs desktop)
+- **Viewport-relative CSS units**: `100vh`, `vw`, etc. are calculated based on this viewport size
+
+Without `page.viewport()`, stories render at Vitest's default iframe size (which varies by environment). For most cases, setting `page.viewport()` to match the plugin `viewport` produces the most accurate screenshots.
+
+**`afterEach` with `screenshot()`**
 
 - **Post-story state**: Captures the final state after all story rendering and play functions complete
 - **Test isolation**: Each story gets its own screenshot without interference from previous tests
 - **Automatic execution**: No need to manually call screenshot in every story file
-- **Consistent timing**: Ensures screenshots are taken at the same lifecycle point for all stories
 
 ### 3. Run Tests
 
@@ -202,8 +221,25 @@ The plugin bridges Vitest's test execution with screenshot capture, providing th
 ```typescript
 type VitestStorycapPluginOptions = {
   output?: ScreenshotOutputOptions<BrowserScreenshotContext>;
+  viewport?: { width: number; height: number };
 };
 ```
+
+##### `viewport`
+
+**Type:** `{ width: number; height: number }`
+**Default:** Uses the Playwright context viewport (typically 1280x720)
+
+Sets the viewport dimensions for screenshot capture. This ensures screenshots are captured at the specified dimensions regardless of Vitest's internal iframe scaling.
+
+```javascript
+storycap({
+  viewport: { width: 1280, height: 720 },
+});
+```
+
+> [!TIP]
+> Screenshots are captured at this size regardless of `page.viewport()`. However, it is recommended to also call `page.viewport()` in `beforeEach` with the same dimensions so that stories render at the correct viewport during the test. This matters for responsive layouts and viewport-relative CSS units like `100vh`.
 
 ##### `output.dir`
 
@@ -378,10 +414,44 @@ Masks elements corresponding to the CSS selector with a rectangle. Useful for hi
 
 ### `remove`
 
-**Type:** `string`  
+**Type:** `string`
 **Default:** None
 
 Removes elements corresponding to the CSS selector.
+
+### `fullPage`
+
+**Type:** `boolean`
+**Default:** `true`
+
+Captures the full scrollable content when `true`. When `false`, captures only the viewport area. Can be set per-story to override the global default set in `screenshot()` options.
+
+```typescript
+export const ViewportOnly = {
+  parameters: {
+    screenshot: {
+      fullPage: false,
+    },
+  },
+};
+```
+
+> [!NOTE]
+> When `fullPage` is `true` and content exceeds the viewport height, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
+
+### `omitBackground`
+
+**Type:** `boolean`
+**Default:** `false`
+
+Hides the default white background and allows capturing screenshots with transparency. Can be set per-story to override the global default.
+
+### `scale`
+
+**Type:** `'css' | 'device'`
+**Default:** `'device'`
+
+The screenshot resolution scale. `'css'` produces screenshots at CSS pixel dimensions, while `'device'` produces screenshots at device pixel dimensions (which may be larger on high-DPI displays). Can be set per-story to override the global default.
 
 ## CHANGELOG
 

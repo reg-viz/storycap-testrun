@@ -16,6 +16,9 @@ export type ScreenshotParameters = {
   delay?: number | null;
   mask?: string | Partial<ScreenshotMaskConfig> | null;
   remove?: string | null;
+  fullPage?: boolean | null;
+  omitBackground?: boolean | null;
+  scale?: 'css' | 'device' | null;
 };
 
 /**
@@ -38,6 +41,9 @@ const defaultScreenshotParameters = {
   delay: null,
   mask: null,
   remove: null,
+  fullPage: null,
+  omitBackground: null,
+  scale: null,
 } satisfies ScreenshotParameters;
 
 /**
