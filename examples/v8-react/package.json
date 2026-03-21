@@ -31,5 +31,10 @@
     "storybook": "8.6.14",
     "vite": "6.3.6",
     "wait-on": "^9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "playwright-core": "$playwright"
+    }
   }
 }
