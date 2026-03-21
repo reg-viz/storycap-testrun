@@ -32,6 +32,66 @@ export type TakeScreenshotParams = [
 ];
 export type TakeScreenshotResult = Promise<string>;
 
+export type PrepareViewportParams = [];
+export type PrepareViewportResult = Promise<void>;
+
+export type RestoreViewportParams = [];
+export type RestoreViewportResult = Promise<void>;
+
+// Module-level state to store the original iframe wrapper style between
+// prepareViewport and restoreViewport calls within a single capture cycle.
+let savedOriginalStyle: string | null = null;
+
+/**
+ * Prepares the iframe viewport for screenshot capture.
+ * Sets the iframe wrapper to the configured viewport size with `transform: none`.
+ * Must be called before any hooks so that mask positions and user hooks
+ * see the correct layout dimensions.
+ */
+const createPrepareViewport =
+  (pluginViewport?: {
+    width: number;
+    height: number;
+  }): BrowserCommand<PrepareViewportParams> =>
+  async (context): PrepareViewportResult => {
+    const viewport = pluginViewport ??
+      context.page.viewportSize() ?? { width: 1280, height: 720 };
+
+    savedOriginalStyle = await context.page.evaluate(
+      ({ w, h }) => {
+        const iframe = document.querySelector(
+          'iframe[data-vitest]',
+        ) as HTMLIFrameElement | null;
+        const wrapper = iframe?.parentElement;
+        if (!wrapper) return null;
+
+        const original = wrapper.style.cssText;
+        wrapper.style.cssText = `width: ${w}px; height: ${h}px; transform: none; transform-origin: left top;`;
+        return original;
+      },
+      { w: viewport.width, h: viewport.height },
+    );
+  };
+
+/**
+ * Restores the iframe wrapper to its original state after screenshot capture.
+ */
+const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
+  context,
+): RestoreViewportResult => {
+  if (savedOriginalStyle != null) {
+    await context.page.evaluate((css) => {
+      const iframe = document.querySelector(
+        'iframe[data-vitest]',
+      ) as HTMLIFrameElement | null;
+      if (iframe?.parentElement) {
+        iframe.parentElement.style.cssText = css;
+      }
+    }, savedOriginalStyle);
+    savedOriginalStyle = null;
+  }
+};
+
 /**
  * Captures a full-page screenshot by scrolling through the iframe and stitching
  * viewport-sized clips using the browser's Canvas API.
@@ -125,19 +185,8 @@ async function captureFullPage(
 }
 
 /**
- * Creates a browser command that takes screenshots via Playwright's frame API,
- * bypassing vitest's orchestrator CSS transform scaling.
- *
- * Vitest browser renders tests inside an iframe whose wrapper element may have
- * `transform: scale(...)` applied when the requested viewport exceeds the
- * orchestrator container's available space. This causes `locator.screenshot()`
- * to capture at the visual (scaled) size instead of the DOM-level size.
- *
- * This command works around the issue by:
- * 1. Reading the viewport from plugin config (or falling back to context viewport)
- * 2. Setting the iframe wrapper to that exact size with `transform: none`
- * 3. Taking the screenshot at the correct DOM dimensions
- * 4. Restoring the original iframe wrapper styles
+ * Creates a browser command that takes screenshots.
+ * The iframe wrapper CSS is already adjusted by prepareViewport before this runs.
  */
 const createTakeScreenshot =
   (pluginViewport?: {
@@ -148,113 +197,77 @@ const createTakeScreenshot =
     const viewport = pluginViewport ??
       context.page.viewportSize() ?? { width: 1280, height: 720 };
 
-    // Set iframe wrapper to the configured viewport size without CSS transform
-    const originalStyle = await context.page.evaluate(
-      ({ w, h }) => {
-        const iframe = document.querySelector(
-          'iframe[data-vitest]',
-        ) as HTMLIFrameElement | null;
-        const wrapper = iframe?.parentElement;
-        if (!wrapper) return null;
+    let buffer: Buffer;
 
-        const original = wrapper.style.cssText;
-        wrapper.style.cssText = `width: ${w}px; height: ${h}px; transform: none; transform-origin: left top;`;
-        return original;
-      },
-      { w: viewport.width, h: viewport.height },
-    );
+    if (options.fullPage === false) {
+      // Viewport-only capture via clip on the orchestrator page
+      await context.page.evaluate(() => window.scrollTo(0, 0));
 
-    try {
-      let buffer: Buffer;
+      const iframeBox = await context.page
+        .locator('iframe[data-vitest]')
+        .boundingBox();
+      if (!iframeBox) {
+        throw new Error(
+          'Could not determine iframe position for viewport screenshot',
+        );
+      }
 
-      if (options.fullPage === false) {
-        // Playwright's locator.screenshot() always captures the full element
-        // (equivalent to fullPage: true). To support fullPage: false, we capture
-        // the orchestrator page with a clip region targeting the iframe's viewport
-        // area. Coordinates are in CSS pixels (Playwright handles DPR internally).
-        await context.page.evaluate(() => window.scrollTo(0, 0));
-
-        const iframeBox = await context.page
-          .locator('iframe[data-vitest]')
-          .boundingBox();
-        if (!iframeBox) {
-          throw new Error(
-            'Could not determine iframe position for viewport screenshot',
-          );
-        }
-
-        buffer = Buffer.from(
-          await context.page.screenshot({
-            animations: 'disabled',
-            caret: 'hide',
-            clip: {
-              x: iframeBox.x,
-              y: iframeBox.y,
-              width: iframeBox.width,
-              height: iframeBox.height,
-            },
-            ...(options.omitBackground != null && {
-              omitBackground: options.omitBackground,
-            }),
-            ...(options.scale != null && { scale: options.scale }),
-            ...(options.type != null && { type: options.type }),
+      buffer = Buffer.from(
+        await context.page.screenshot({
+          animations: 'disabled',
+          caret: 'hide',
+          clip: {
+            x: iframeBox.x,
+            y: iframeBox.y,
+            width: iframeBox.width,
+            height: iframeBox.height,
+          },
+          ...(options.omitBackground != null && {
+            omitBackground: options.omitBackground,
           }),
+          ...(options.scale != null && { scale: options.scale }),
+          ...(options.type != null && { type: options.type }),
+        }),
+      );
+    } else {
+      // Full-page capture: stitch if content exceeds viewport
+      const scrollHeight = await context.iframe
+        .locator('body')
+        .evaluate((body) =>
+          Math.max(
+            body.scrollHeight,
+            body.ownerDocument.documentElement.scrollHeight,
+          ),
+        );
+
+      if (scrollHeight > viewport.height) {
+        buffer = await captureFullPage(
+          context,
+          viewport,
+          scrollHeight,
+          options,
         );
       } else {
-        // Default: capture the full body element (equivalent to fullPage: true).
-        // Playwright's locator.screenshot() on a scrollable container only renders
-        // currently visible content. When content exceeds the viewport, we scroll
-        // through the iframe capturing viewport-sized clips, then stitch them
-        // using the browser's Canvas API (no external image library needed).
-        const scrollHeight = await context.iframe
+        const screenshotOptions: Parameters<
+          ReturnType<typeof context.iframe.locator>['screenshot']
+        >[0] = {
+          animations: 'disabled',
+          caret: 'hide',
+        };
+        if (options.omitBackground != null)
+          screenshotOptions.omitBackground = options.omitBackground;
+        if (options.scale != null) screenshotOptions.scale = options.scale;
+        if (options.type != null) screenshotOptions.type = options.type;
+        buffer = await context.iframe
           .locator('body')
-          .evaluate((body) =>
-            Math.max(
-              body.scrollHeight,
-              body.ownerDocument.documentElement.scrollHeight,
-            ),
-          );
-
-        if (scrollHeight > viewport.height) {
-          buffer = await captureFullPage(
-            context,
-            viewport,
-            scrollHeight,
-            options,
-          );
-        } else {
-          const screenshotOptions: Parameters<
-            ReturnType<typeof context.iframe.locator>['screenshot']
-          >[0] = {
-            animations: 'disabled',
-            caret: 'hide',
-          };
-          if (options.omitBackground != null)
-            screenshotOptions.omitBackground = options.omitBackground;
-          if (options.scale != null) screenshotOptions.scale = options.scale;
-          if (options.type != null) screenshotOptions.type = options.type;
-          buffer = await context.iframe
-            .locator('body')
-            .screenshot(screenshotOptions);
-        }
-      }
-
-      await fs.mkdir(path.dirname(filepath), { recursive: true });
-      await fs.writeFile(filepath, buffer);
-
-      return Buffer.from(buffer).toString('base64');
-    } finally {
-      if (originalStyle != null) {
-        await context.page.evaluate((css) => {
-          const iframe = document.querySelector(
-            'iframe[data-vitest]',
-          ) as HTMLIFrameElement | null;
-          if (iframe?.parentElement) {
-            iframe.parentElement.style.cssText = css;
-          }
-        }, originalStyle);
+          .screenshot(screenshotOptions);
       }
     }
+
+    await fs.mkdir(path.dirname(filepath), { recursive: true });
+    await fs.writeFile(filepath, buffer);
+
+    return Buffer.from(buffer).toString('base64');
   };
 
 /**
@@ -291,6 +304,8 @@ export default function vitestStorycapPluginOptions(
                 opts.output,
               ),
               __storycap_takeScreenshot: createTakeScreenshot(opts.viewport),
+              __storycap_prepareViewport: createPrepareViewport(opts.viewport),
+              __storycap_restoreViewport: restoreViewport,
             },
           },
         },

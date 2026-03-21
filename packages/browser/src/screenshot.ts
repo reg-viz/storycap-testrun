@@ -1,7 +1,11 @@
 import type { TestContext } from 'vitest';
 import type {
+  PrepareViewportParams,
+  PrepareViewportResult,
   ResolveScreenshotFilepathParams,
   ResolveScreenshotFilepathResult,
+  RestoreViewportParams,
+  RestoreViewportResult,
   TakeScreenshotParams,
   TakeScreenshotResult,
 } from './vitest-plugin';
@@ -26,6 +30,12 @@ declare module 'vitest/browser' {
     __storycap_takeScreenshot: (
       ...params: TakeScreenshotParams
     ) => TakeScreenshotResult;
+    __storycap_prepareViewport: (
+      ...params: PrepareViewportParams
+    ) => PrepareViewportResult;
+    __storycap_restoreViewport: (
+      ...params: RestoreViewportParams
+    ) => RestoreViewportResult;
   }
 }
 
@@ -115,6 +125,14 @@ export const createBrowserScreenshotAdapter = (): ScreenshotAdapter<
       scale: options.scale,
       type: options.type,
     });
+  },
+
+  prepareCapture: async () => {
+    await commands.__storycap_prepareViewport();
+  },
+
+  cleanupCapture: async () => {
+    await commands.__storycap_restoreViewport();
   },
 
   createAnimationsHook,
