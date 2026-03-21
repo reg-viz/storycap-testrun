@@ -32,18 +32,24 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "types": {
+        "import": "./dist/index.d.mts",
+        "require": "./dist/index.d.cts"
+      },
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     },
     "./vitest-plugin": {
-      "types": "./dist/vitest-plugin/index.d.ts",
-      "require": "./dist/vitest-plugin/index.js",
-      "import": "./dist/vitest-plugin/index.mjs"
+      "types": {
+        "import": "./dist/vitest-plugin/index.d.mts",
+        "require": "./dist/vitest-plugin/index.d.cts"
+      },
+      "import": "./dist/vitest-plugin/index.mjs",
+      "require": "./dist/vitest-plugin/index.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -69,13 +75,15 @@
   },
   "tsdown": {
     "clean": true,
+    "deps": {
+      "neverBundle": [
+        "vitest/browser"
+      ]
+    },
     "dts": true,
     "entry": [
       "src/index.ts",
       "src/vitest-plugin/index.ts"
-    ],
-    "external": [
-      "vitest/browser"
     ],
     "format": [
       "esm",
