@@ -10,6 +10,9 @@ describe('resolveScreenshotParameters', () => {
       delay: null,
       mask: null,
       remove: null,
+      fullPage: null,
+      omitBackground: null,
+      scale: null,
     });
   });
 
@@ -25,6 +28,9 @@ describe('resolveScreenshotParameters', () => {
       delay: 1000,
       mask: null,
       remove: '.selector',
+      fullPage: null,
+      omitBackground: null,
+      scale: null,
     });
   });
 
@@ -49,6 +55,38 @@ describe('resolveScreenshotParameters', () => {
     expect(result.mask).toEqual({
       selector: '.custom-selector',
       color: '#ff00ff',
+    });
+  });
+
+  test('should override fullPage with false', () => {
+    const result = resolveScreenshotParameters({
+      fullPage: false,
+    });
+
+    expect(result).toEqual({
+      skip: false,
+      delay: null,
+      mask: null,
+      remove: null,
+      fullPage: false,
+      omitBackground: null,
+      scale: null,
+    });
+  });
+
+  test('should override scale with css', () => {
+    const result = resolveScreenshotParameters({
+      scale: 'css',
+    });
+
+    expect(result).toEqual({
+      skip: false,
+      delay: null,
+      mask: null,
+      remove: null,
+      fullPage: null,
+      omitBackground: null,
+      scale: 'css',
     });
   });
 

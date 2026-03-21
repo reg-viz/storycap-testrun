@@ -9,6 +9,9 @@ vi.mock('vitest/browser', () => ({
     resolveScreenshotFilepath: vi
       .fn()
       .mockResolvedValue('/test/screenshot.png'),
+    __storycap_takeScreenshot: vi
+      .fn()
+      .mockResolvedValue('base64-screenshot-data'),
   },
 }));
 
@@ -159,7 +162,8 @@ describe('createBrowserScreenshotAdapter', () => {
     expect(waitForStable).toHaveBeenCalledWith(context, options);
   });
 
-  test('should take screenshot with correct options', async () => {
+  test('should take screenshot via browser command', async () => {
+    const { commands } = await import('vitest/browser');
     const adapter = createBrowserScreenshotAdapter();
     const filepath = '/test/screenshot.png';
     const options = {
@@ -171,21 +175,17 @@ describe('createBrowserScreenshotAdapter', () => {
 
     const result = await adapter.takeScreenshot(mockPage, filepath, options);
 
-    expect(mockPage.screenshot).toHaveBeenCalledWith({
-      path: filepath,
-      save: true,
-      base64: true,
-      animations: 'disabled',
-      caret: 'hide',
+    expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(filepath, {
       fullPage: true,
       omitBackground: false,
       scale: 'device',
       type: 'png',
     });
-    expect(result).toBe('base64screenshot');
+    expect(result).toBe('base64-screenshot-data');
   });
 
-  test('should take JPEG screenshot', async () => {
+  test('should take JPEG screenshot via browser command', async () => {
+    const { commands } = await import('vitest/browser');
     const adapter = createBrowserScreenshotAdapter();
     const filepath = '/test/screenshot.jpg';
     const options = {
@@ -197,12 +197,7 @@ describe('createBrowserScreenshotAdapter', () => {
 
     await adapter.takeScreenshot(mockPage, filepath, options);
 
-    expect(mockPage.screenshot).toHaveBeenCalledWith({
-      path: filepath,
-      save: true,
-      base64: true,
-      animations: 'disabled',
-      caret: 'hide',
+    expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(filepath, {
       fullPage: false,
       omitBackground: true,
       scale: 'css',

@@ -300,10 +300,19 @@ export const createScreenshotFunction = <
       ? 'jpeg'
       : 'png';
 
+    const imageOptions = {
+      ...opts.image,
+      ...(params.fullPage != null && { fullPage: params.fullPage }),
+      ...(params.omitBackground != null && {
+        omitBackground: params.omitBackground,
+      }),
+      ...(params.scale != null && { scale: params.scale }),
+    };
+
     await retakeScreenshotIfNeeded(
       async () => {
         return adapter.takeScreenshot(page, filepath, {
-          ...opts.image,
+          ...imageOptions,
           type,
         });
       },
