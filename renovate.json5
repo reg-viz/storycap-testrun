@@ -49,6 +49,13 @@
       groupName: 'commitlint packages',
       groupSlug: 'commitlint',
     },
+
+    // Disable @storybook/test-runner updates until Storybook 10 migration
+    // test-runner 0.24+ requires storybook ^10.0.0, incompatible with v8-react example
+    {
+      matchPackageNames: ['@storybook/test-runner'],
+      enabled: false,
+    },
   ],
 
   // No limit on concurrent PRs
