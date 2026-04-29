@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.6.0",
-    "@changesets/cli": "2.30.0",
+    "@changesets/cli": "2.31.0",
     "@tsconfig/node22": "22.0.5",
     "@tsconfig/strictest": "2.0.8",
     "@types/node": "22.19.17",
