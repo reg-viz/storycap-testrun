@@ -61,7 +61,8 @@
     "clean": "rimraf dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc"
+    "typecheck": "tsc && pnpm typecheck:dist",
+    "typecheck:dist": "tsc -p test-types"
   },
   "dependencies": {
     "@storycap-testrun/internal": "workspace:*"
@@ -72,25 +73,5 @@
   },
   "peerDependencies": {
     "@vitest/browser-playwright": "*"
-  },
-  "tsdown": {
-    "clean": true,
-    "deps": {
-      "neverBundle": [
-        "vitest/browser"
-      ]
-    },
-    "dts": true,
-    "entry": [
-      "src/index.ts",
-      "src/vitest-plugin/index.ts"
-    ],
-    "format": [
-      "esm",
-      "cjs"
-    ],
-    "minify": true,
-    "sourcemap": false,
-    "splitting": false
   }
 }
