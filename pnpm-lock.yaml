@@ -30,8 +30,8 @@ importers:
         specifier: 4.1.0
         version: 4.1.0(vitest@4.1.0)
       happy-dom:
-        specifier: 20.8.4
-        version: 20.8.4
+        specifier: 20.9.0
+        version: 20.9.0
       lefthook:
         specifier: 2.1.6
         version: 2.1.6
@@ -58,7 +58,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 4.1.0
-        version: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
+        version: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
       zx:
         specifier: 8.8.5
         version: 8.8.5
@@ -74,7 +74,7 @@ importers:
         version: 4.1.0(playwright@1.58.2)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))(vitest@4.1.0)
       vitest:
         specifier: 4.1.0
-        version: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
+        version: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
 
   packages/internal: {}
 
@@ -2102,8 +2102,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  happy-dom@20.8.4:
-    resolution: {integrity: sha512-GKhjq4OQCYB4VLFBzv8mmccUadwlAusOZOI7hC1D9xDIT5HhzkJK17c4el2f6R6C715P9xB4uiMxeKUa2nHMwQ==}
+  happy-dom@20.9.0:
+    resolution: {integrity: sha512-GZZ9mKe8r646NUAf/zemnGbjYh4Bt8/MqASJY+pSm5ZDtc3YQox+4gsLI7yi1hba6o+eCsGxpHn5+iEVn31/FQ==}
     engines: {node: '>=20.0.0'}
 
   has-flag@3.0.0:
@@ -3435,18 +3435,6 @@ packages:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.19.0:
     resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
@@ -4708,7 +4696,7 @@ snapshots:
       '@vitest/mocker': 4.1.0(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
       playwright: 1.58.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
+      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -4724,7 +4712,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
+      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
       ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
@@ -4800,7 +4788,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
+      vitest: 4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -5484,14 +5472,14 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  happy-dom@20.8.4:
+  happy-dom@20.9.0:
     dependencies:
       '@types/node': 22.19.17
       '@types/whatwg-mimetype': 3.0.2
       '@types/ws': 8.18.1
       entities: 7.0.1
       whatwg-mimetype: 3.0.0
-      ws: 8.18.3
+      ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -6880,7 +6868,7 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
 
-  vitest@4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1)):
+  vitest@4.1.0(@types/node@22.19.17)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@20.9.0)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1)):
     dependencies:
       '@vitest/expect': 4.1.0
       '@vitest/mocker': 4.1.0(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))
@@ -6906,7 +6894,7 @@ snapshots:
       '@types/node': 22.19.17
       '@vitest/browser-playwright': 4.1.0(playwright@1.58.2)(vite@7.1.10(@types/node@22.19.17)(jiti@2.6.1))(vitest@4.1.0)
       '@vitest/ui': 4.1.0(vitest@4.1.0)
-      happy-dom: 20.8.4
+      happy-dom: 20.9.0
     transitivePeerDependencies:
       - msw
 
@@ -6981,8 +6969,6 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
-
-  ws@8.18.3: {}
 
   ws@8.19.0: {}
 
