@@ -8,6 +8,9 @@ const BANDS = [
 
 export const Bands = () => (
   <div style={{ margin: 0 }}>
+    <style>{`
+      :root, html, body { scroll-behavior: smooth; }
+    `}</style>
     {BANDS.map(([bg, label]) => (
       <div
         key={label}

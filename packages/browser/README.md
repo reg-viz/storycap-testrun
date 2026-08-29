@@ -71,6 +71,8 @@ This makes it ideal for teams who need more than basic screenshots - providing t
   - When capturing full-page screenshots of content taller than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
 - **Incompatible with `browser.ui`**
   - The Vitest UI keeps mutating the page, so the CDP metrics never settle and every capture ends in `MetricsTimeoutError`. `browser.ui` is already off whenever `headless: true` is set.
+- **Only Chromium is exercised**
+  - The examples and CI run Chromium. Firefox and WebKit should work through the hash-verification fallback, but are not verified.
 
 ## Installation
 
