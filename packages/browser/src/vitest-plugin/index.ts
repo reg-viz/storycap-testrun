@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BrowserCommand } from 'vitest/node';
+import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
 import type { Plugin } from 'vitest/config';
 import {
   resolveScreenshotFilename,
@@ -38,9 +38,17 @@ export type PrepareViewportResult = Promise<void>;
 export type RestoreViewportParams = [];
 export type RestoreViewportResult = Promise<void>;
 
-// Module-level state to store the original iframe wrapper style between
-// prepareViewport and restoreViewport calls within a single capture cycle.
-let savedOriginalStyle: string | null = null;
+type CaptureState = {
+  wrapperStyle: string | null;
+};
+
+// Test files get their own page and run concurrently, so prepareViewport and
+// restoreViewport calls interleave. Keying the state by page keeps each capture
+// from restoring another page's values.
+const captureStates = new WeakMap<
+  BrowserCommandContext['page'],
+  CaptureState
+>();
 
 /**
  * Prepares the iframe viewport for screenshot capture.
@@ -57,7 +65,7 @@ const createPrepareViewport =
     const viewport = pluginViewport ??
       context.page.viewportSize() ?? { width: 1280, height: 720 };
 
-    savedOriginalStyle = await context.page.evaluate(
+    const wrapperStyle = await context.page.evaluate(
       ({ w, h }) => {
         const iframe = document.querySelector(
           'iframe[data-vitest]',
@@ -71,6 +79,8 @@ const createPrepareViewport =
       },
       { w: viewport.width, h: viewport.height },
     );
+
+    captureStates.set(context.page, { wrapperStyle });
   };
 
 /**
@@ -79,7 +89,13 @@ const createPrepareViewport =
 const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
   context,
 ): RestoreViewportResult => {
-  if (savedOriginalStyle != null) {
+  const state = captureStates.get(context.page);
+  if (state == null) {
+    return;
+  }
+  captureStates.delete(context.page);
+
+  if (state.wrapperStyle != null) {
     await context.page.evaluate((css) => {
       const iframe = document.querySelector(
         'iframe[data-vitest]',
@@ -87,8 +103,7 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
       if (iframe?.parentElement) {
         iframe.parentElement.style.cssText = css;
       }
-    }, savedOriginalStyle);
-    savedOriginalStyle = null;
+    }, state.wrapperStyle);
   }
 };
 
