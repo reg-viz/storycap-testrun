@@ -69,6 +69,8 @@ This makes it ideal for teams who need more than basic screenshots - providing t
   - Limited to capabilities available in browser context.
 - **Full-page screenshots with `position: fixed/sticky`**
   - When capturing full-page screenshots of content taller than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
+- **Incompatible with `browser.ui`**
+  - The Vitest UI keeps mutating the page, so the CDP metrics never settle and every capture ends in `MetricsTimeoutError`. `browser.ui` is already off whenever `headless: true` is set.
 
 ## Installation
 
@@ -251,7 +253,7 @@ browser: {
 > `page.viewport()` from `vitest/browser` does not change this size. It sizes the Vitest iframe during the test body only.
 
 > [!WARNING]
-> When the Playwright context has no viewport of its own, the resize is one-way: Playwright cannot turn viewport emulation back off, so the page stays at this size for the rest of the run. Vitest leaves the context viewport unset whenever `browser.ui` is enabled, which is the default outside CI — so a local run keeps the emulated viewport after the first screenshot. Setting `contextOptions.viewport` as above avoids it.
+> When the Playwright context has no viewport of its own — `contextOptions: { viewport: null }` — the resize is one-way: Playwright cannot turn viewport emulation back off, so the page keeps this size for the rest of the run. Give the context a viewport as above to avoid it.
 
 ##### `output.dir`
 

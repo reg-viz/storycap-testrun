@@ -12,4 +12,4 @@ Three cases produced a damaged screenshot without raising anything:
 
 If you use a `viewport` that differs from the Playwright context viewport, or a `deviceScaleFactor` other than 1, your screenshots change with this release and need a new baseline.
 
-Capturing now resizes the Playwright context and restores it afterwards. When the context has no viewport of its own — which is what Vitest does whenever `browser.ui` is enabled, the default outside CI — the resize cannot be undone, and the page keeps the configured size for the rest of the run. Set `contextOptions.viewport` on the Playwright provider to avoid it.
+Capturing now resizes the Playwright context and restores it afterwards. A context configured with `viewport: null` is the exception: Playwright cannot turn emulation back off, so the page keeps the configured size for the rest of the run.
