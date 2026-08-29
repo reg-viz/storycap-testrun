@@ -150,15 +150,20 @@ async function captureFullPage(
   const chunks: string[] = [];
 
   for (let scrollY = 0; scrollY < scrollHeight; scrollY += viewport.height) {
-    await context.iframe
+    // The browser clamps a scroll past the bottom, so the requested offset is
+    // read back rather than assumed: the last chunk sits at the bottom of the
+    // viewport, not at its top.
+    const reachedScrollY = await context.iframe
       .locator('body')
-      .evaluate(
-        (body, y) => body.ownerDocument.defaultView?.scrollTo(0, y),
-        scrollY,
-      );
+      .evaluate((body, y) => {
+        const view = body.ownerDocument.defaultView;
+        view?.scrollTo(0, y);
+        return view?.scrollY ?? 0;
+      }, scrollY);
 
     const remaining = scrollHeight - scrollY;
     const chunkH = Math.min(viewport.height, remaining);
+    const chunkOffset = scrollY - reachedScrollY;
 
     const iframeBox = await context.page
       .locator('iframe[data-vitest]')
@@ -172,7 +177,7 @@ async function captureFullPage(
     const chunkBuf = await context.page.screenshot({
       clip: {
         x: iframeBox.x,
-        y: iframeBox.y,
+        y: iframeBox.y + chunkOffset,
         width: iframeBox.width,
         height: chunkH,
       },
