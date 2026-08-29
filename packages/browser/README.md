@@ -138,7 +138,8 @@ import * as projectAnnotations from './preview';
 
 setProjectAnnotations([projectAnnotations]);
 
-// Recommended: set the viewport to match the storycap plugin's viewport option
+// Sizes the iframe while the test body runs. The captured image uses the
+// storycap plugin's viewport option instead.
 beforeEach(async () => {
   await page.viewport(1280, 720);
 });
@@ -148,14 +149,11 @@ afterEach(async (context) => {
 });
 ```
 
-**`beforeEach` with `page.viewport()` (recommended)**
+**`beforeEach` with `page.viewport()`**
 
-The storycap plugin's `viewport` option controls the screenshot capture dimensions — screenshots will be taken at the specified size regardless of this setting. However, `page.viewport()` controls the viewport during **story rendering**, which affects:
+`page.viewport()` sizes the Vitest iframe while your test body runs, so it is what play functions and interaction assertions see. It does not decide the screenshot dimensions: immediately before capturing, storycap lays the story out at the plugin's `viewport` size, and the image is taken at that size.
 
-- **Responsive layouts**: Breakpoint-dependent rendering (e.g., mobile vs desktop)
-- **Viewport-relative CSS units**: `100vh`, `vw`, etc. are calculated based on this viewport size
-
-Without `page.viewport()`, stories render at Vitest's default iframe size (which varies by environment). For most cases, setting `page.viewport()` to match the plugin `viewport` produces the most accurate screenshots.
+Set it when a play function depends on the viewport. Otherwise the plugin's `viewport` option is the only setting that affects the captured image.
 
 **`afterEach` with `screenshot()`**
 
@@ -238,8 +236,18 @@ storycap({
 });
 ```
 
-> [!TIP]
-> Screenshots are captured at this size regardless of `page.viewport()`. However, it is recommended to also call `page.viewport()` in `beforeEach` with the same dimensions so that stories render at the correct viewport during the test. This matters for responsive layouts and viewport-relative CSS units like `100vh`.
+While a screenshot is taken, the Playwright context is resized to this size and restored afterwards, so hooks that run during the capture see the resized page. The resize is skipped when the Playwright context viewport already matches, which you can arrange through the browser instance:
+
+```javascript
+browser: {
+  instances: [
+    { browser: 'chromium', context: { viewport: { width: 1280, height: 720 } } },
+  ],
+}
+```
+
+> [!NOTE]
+> `page.viewport()` from `vitest/browser` does not change this size. It sizes the Vitest iframe during the test body only.
 
 ##### `output.dir`
 
