@@ -41,7 +41,7 @@
     "vitest": "4.1.11",
     "zx": "8.8.5"
   },
-  "packageManager": "pnpm@10.34.5",
+  "packageManager": "pnpm@11.22.0",
   "pnpm": {
     "overrides": {
       "playwright-core": "$playwright"
