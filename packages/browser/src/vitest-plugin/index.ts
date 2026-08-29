@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BrowserCommand } from 'vitest/node';
+import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
 import type { Plugin } from 'vitest/config';
 import {
   resolveScreenshotFilename,
@@ -38,9 +38,18 @@ export type PrepareViewportResult = Promise<void>;
 export type RestoreViewportParams = [];
 export type RestoreViewportResult = Promise<void>;
 
-// Module-level state to store the original iframe wrapper style between
-// prepareViewport and restoreViewport calls within a single capture cycle.
-let savedOriginalStyle: string | null = null;
+type CaptureState = {
+  wrapperStyle: string | null;
+  previousViewport: { width: number; height: number } | null;
+};
+
+// Test files get their own page and run concurrently, so prepareViewport and
+// restoreViewport calls interleave. Keying the state by page keeps each capture
+// from restoring another page's values.
+const captureStates = new WeakMap<
+  BrowserCommandContext['page'],
+  CaptureState
+>();
 
 /**
  * Prepares the iframe viewport for screenshot capture.
@@ -57,7 +66,34 @@ const createPrepareViewport =
     const viewport = pluginViewport ??
       context.page.viewportSize() ?? { width: 1280, height: 720 };
 
-    savedOriginalStyle = await context.page.evaluate(
+    // Playwright intersects a screenshot `clip` with the browser viewport, so a
+    // configured viewport wider or taller than the Playwright context viewport
+    // would be silently cropped. Resizing the context keeps layout, clipping
+    // and stitching in one coordinate space.
+    //
+    // A null viewport means emulation is off and the page follows the real
+    // window; enabling emulation there cannot be undone, so it only happens for
+    // a viewport the caller actually asked for.
+    const previousViewport = context.page.viewportSize();
+    const resized =
+      previousViewport == null
+        ? pluginViewport != null
+        : previousViewport.width !== viewport.width ||
+          previousViewport.height !== viewport.height;
+
+    if (resized) {
+      await context.page.setViewportSize(viewport);
+    }
+
+    // Recorded before the wrapper is touched so a failure there still leaves
+    // restoreViewport able to undo the resize.
+    const state: CaptureState = {
+      wrapperStyle: null,
+      previousViewport: resized ? previousViewport : null,
+    };
+    captureStates.set(context.page, state);
+
+    state.wrapperStyle = await context.page.evaluate(
       ({ w, h }) => {
         const iframe = document.querySelector(
           'iframe[data-vitest]',
@@ -79,16 +115,29 @@ const createPrepareViewport =
 const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
   context,
 ): RestoreViewportResult => {
-  if (savedOriginalStyle != null) {
-    await context.page.evaluate((css) => {
-      const iframe = document.querySelector(
-        'iframe[data-vitest]',
-      ) as HTMLIFrameElement | null;
-      if (iframe?.parentElement) {
-        iframe.parentElement.style.cssText = css;
-      }
-    }, savedOriginalStyle);
-    savedOriginalStyle = null;
+  const state = captureStates.get(context.page);
+  if (state == null) {
+    return;
+  }
+  captureStates.delete(context.page);
+
+  try {
+    if (state.wrapperStyle != null) {
+      await context.page.evaluate((css) => {
+        const iframe = document.querySelector(
+          'iframe[data-vitest]',
+        ) as HTMLIFrameElement | null;
+        if (iframe?.parentElement) {
+          iframe.parentElement.style.cssText = css;
+        }
+      }, state.wrapperStyle);
+    }
+  } finally {
+    // The state is already gone from the map, so a failure above would
+    // otherwise leave the page resized for every later capture.
+    if (state.previousViewport != null) {
+      await context.page.setViewportSize(state.previousViewport);
+    }
   }
 };
 
@@ -103,18 +152,24 @@ async function captureFullPage(
   options: TakeScreenshotParams[1],
 ): Promise<Buffer> {
   const chunks: string[] = [];
-  const chunkHeights: number[] = [];
 
   for (let scrollY = 0; scrollY < scrollHeight; scrollY += viewport.height) {
-    await context.iframe
+    // The browser clamps a scroll past the bottom, so the requested offset is
+    // read back rather than assumed: the last chunk sits at the bottom of the
+    // viewport, not at its top.
+    const reachedScrollY = await context.iframe
       .locator('body')
-      .evaluate(
-        (body, y) => body.ownerDocument.defaultView?.scrollTo(0, y),
-        scrollY,
-      );
+      .evaluate((body, y) => {
+        const view = body.ownerDocument.defaultView;
+        // A story that sets `scroll-behavior: smooth` would otherwise leave the
+        // read-back on the pre-scroll position.
+        view?.scrollTo({ top: y, left: 0, behavior: 'instant' });
+        return view?.scrollY ?? 0;
+      }, scrollY);
 
     const remaining = scrollHeight - scrollY;
     const chunkH = Math.min(viewport.height, remaining);
+    const chunkOffset = scrollY - reachedScrollY;
 
     const iframeBox = await context.page
       .locator('iframe[data-vitest]')
@@ -128,7 +183,7 @@ async function captureFullPage(
     const chunkBuf = await context.page.screenshot({
       clip: {
         x: iframeBox.x,
-        y: iframeBox.y,
+        y: iframeBox.y + chunkOffset,
         width: iframeBox.width,
         height: chunkH,
       },
@@ -142,44 +197,62 @@ async function captureFullPage(
     });
 
     chunks.push(Buffer.from(chunkBuf).toString('base64'));
-    chunkHeights.push(chunkH);
   }
 
   // Stitch chunks using browser-native Canvas API (no external dependency)
   const mimeType = options.type === 'jpeg' ? 'image/jpeg' : 'image/png';
   const stitchedB64 = await context.page.evaluate(
-    async ({ images, width, heights, mime }) => {
-      const totalH = heights.reduce((a, b) => a + b, 0);
+    async ({ images, mime }) => {
+      // Sizing the canvas from the decoded chunks rather than the CSS-pixel
+      // viewport keeps the stitched image correct under a `deviceScaleFactor`
+      // other than 1, where each chunk comes back scaled.
+      const decoded = await Promise.all(
+        images.map(
+          (src, index) =>
+            new Promise<HTMLImageElement>((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve(img);
+              img.onerror = () =>
+                reject(
+                  new Error(`Failed to decode screenshot chunk ${index}.`),
+                );
+              img.src = `data:${mime};base64,${src}`;
+            }),
+        ),
+      );
+
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = totalH;
+      canvas.width = Math.max(...decoded.map((img) => img.naturalWidth));
+      canvas.height = decoded.reduce((sum, img) => sum + img.naturalHeight, 0);
       const ctx = canvas.getContext('2d')!;
 
       let y = 0;
-      for (let i = 0; i < images.length; i++) {
-        const img = new Image();
-        img.src = `data:${mime};base64,${images[i]}`;
-        await new Promise<void>((r) => {
-          img.onload = () => r();
-        });
+      for (const img of decoded) {
         ctx.drawImage(img, 0, y);
-        y += heights[i] ?? 0;
+        y += img.naturalHeight;
       }
 
-      return canvas.toDataURL(mime).split(',')[1] ?? '';
+      // A canvas past the browser's maximum dimensions yields an empty data URL,
+      // which would otherwise be written out as a zero-byte screenshot.
+      const encoded = canvas.toDataURL(mime).split(',')[1];
+      if (!encoded) {
+        throw new Error(
+          `Failed to encode a ${canvas.width}x${canvas.height} full-page screenshot; the canvas likely exceeds the browser's maximum size.`,
+        );
+      }
+      return encoded;
     },
-    {
-      images: chunks,
-      width: viewport.width,
-      heights: chunkHeights,
-      mime: mimeType,
-    },
+    { images: chunks, mime: mimeType },
   );
 
   // Restore scroll position
-  await context.iframe
-    .locator('body')
-    .evaluate((body) => body.ownerDocument.defaultView?.scrollTo(0, 0));
+  await context.iframe.locator('body').evaluate((body) =>
+    body.ownerDocument.defaultView?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant',
+    }),
+  );
 
   return Buffer.from(stitchedB64, 'base64');
 }

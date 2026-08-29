@@ -295,11 +295,11 @@ export const createScreenshotFunction = <
 
     const processor = createHookProcessor([...hooks, ...opts.hooks]);
 
-    // Prepare capture environment before any hooks run, so that all user hooks
-    // (setup, preCapture, postCapture) see the correct layout dimensions.
-    await adapter.prepareCapture?.(page, ctx);
-
     try {
+      // Runs before the hooks so that mask positions and user hooks read the
+      // layout dimensions the screenshot will actually be taken at.
+      await adapter.prepareCapture?.(page, ctx);
+
       await processor.setup(page, ctx);
 
       await adapter.waitForStable(page, ctx, {
