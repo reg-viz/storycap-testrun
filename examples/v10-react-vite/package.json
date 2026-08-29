@@ -6,7 +6,7 @@
     "build-storybook": "storybook build",
     "clean": "rimraf storybook-static __screenshots__",
     "storybook": "storybook dev -p 6009",
-    "test": "vitest run --project=storybook"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^10.0.0-beta.13",
