@@ -50,6 +50,14 @@
       groupSlug: 'commitlint',
     },
 
+    // Keep @types/node on the lowest supported Node.js line
+    // Typing against a newer line lets Node 24-only APIs pass type checking
+    // while `engines.node` still promises >=22
+    {
+      matchPackageNames: ['@types/node'],
+      allowedVersions: '<23',
+    },
+
     // Disable @storybook/test-runner updates until Storybook 10 migration
     // test-runner 0.24+ requires storybook ^10.0.0, incompatible with v8-react example
     {
