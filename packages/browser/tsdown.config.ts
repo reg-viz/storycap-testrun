@@ -4,7 +4,7 @@ export default defineConfig([
   {
     clean: true,
     deps: {
-      neverBundle: ['vitest/browser'],
+      neverBundle: ['vitest', 'vitest/browser', 'vitest/config', 'vitest/node'],
     },
     dts: true,
     entry: ['src/index.ts'],
@@ -16,7 +16,7 @@ export default defineConfig([
   {
     clean: false,
     deps: {
-      neverBundle: ['vitest/browser'],
+      neverBundle: ['vitest', 'vitest/browser', 'vitest/config', 'vitest/node'],
     },
     dts: true,
     entry: ['src/vitest-plugin/index.ts'],
