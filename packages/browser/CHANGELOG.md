@@ -1,5 +1,37 @@
 # @storycap-testrun/browser
 
+## 3.0.0
+
+### Major Changes
+
+- [#288](https://github.com/reg-viz/storycap-testrun/pull/288) [`d2769c0`](https://github.com/reg-viz/storycap-testrun/commit/d2769c05e6aecc779959f0a51a4b45dbc84cfe06) Thanks [@wadackel](https://github.com/wadackel)! - Drop support for Node.js 20
+
+  Node.js 20 reached end-of-life on 2026-04-30. All three packages now declare
+  `engines.node: ">=22"` and CI runs against Node.js 22 and 24 only.
+
+### Patch Changes
+
+- [#292](https://github.com/reg-viz/storycap-testrun/pull/292) [`2b6b929`](https://github.com/reg-viz/storycap-testrun/commit/2b6b929d70bcf0d53ca1e8b27759136e42069f4d) Thanks [@wadackel](https://github.com/wadackel)! - Capture the full image in configurations that were silently cropped
+
+  Three cases produced a damaged screenshot without raising anything:
+
+  - A `viewport` option larger than the Playwright context viewport. `fullPage: false` was truncated to the context size, and the stitched full-page image gained black bands.
+  - A `deviceScaleFactor` other than 1. The stitched full-page image came back at CSS-pixel dimensions with its right and bottom cropped away, while every other capture path was scaled correctly.
+  - Content whose height is not a whole multiple of the viewport height. The last stitched chunk repeated the previous one and the real bottom of the page never appeared.
+
+  If you use a `viewport` that differs from the Playwright context viewport, or a `deviceScaleFactor` other than 1, your screenshots change with this release and need a new baseline.
+
+  Capturing now resizes the Playwright context and restores it afterwards. A context configured with `viewport: null` is the exception: Playwright cannot turn emulation back off, so the page keeps the configured size for the rest of the run.
+
+- [#291](https://github.com/reg-viz/storycap-testrun/pull/291) [`e7a84b9`](https://github.com/reg-viz/storycap-testrun/commit/e7a84b9c0206d4f9847dabe8db07480ce4916897) Thanks [@wadackel](https://github.com/wadackel)! - Stop inlining Vitest's type surface into the published declarations
+
+  `dist/index.d.mts` and `dist/index.d.cts` shrink from about 1.1 MB to 2.5 kB; the
+  types are now imported from `vitest` and `vitest/browser` instead of being copied
+  in. The exported API is unchanged.
+
+- Updated dependencies [[`d2769c0`](https://github.com/reg-viz/storycap-testrun/commit/d2769c05e6aecc779959f0a51a4b45dbc84cfe06), [`2b6b929`](https://github.com/reg-viz/storycap-testrun/commit/2b6b929d70bcf0d53ca1e8b27759136e42069f4d)]:
+  - @storycap-testrun/internal@3.0.0
+
 ## 2.1.1
 
 ### Patch Changes
