@@ -121,19 +121,23 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
   }
   captureStates.delete(context.page);
 
-  if (state.wrapperStyle != null) {
-    await context.page.evaluate((css) => {
-      const iframe = document.querySelector(
-        'iframe[data-vitest]',
-      ) as HTMLIFrameElement | null;
-      if (iframe?.parentElement) {
-        iframe.parentElement.style.cssText = css;
-      }
-    }, state.wrapperStyle);
-  }
-
-  if (state.previousViewport != null) {
-    await context.page.setViewportSize(state.previousViewport);
+  try {
+    if (state.wrapperStyle != null) {
+      await context.page.evaluate((css) => {
+        const iframe = document.querySelector(
+          'iframe[data-vitest]',
+        ) as HTMLIFrameElement | null;
+        if (iframe?.parentElement) {
+          iframe.parentElement.style.cssText = css;
+        }
+      }, state.wrapperStyle);
+    }
+  } finally {
+    // The state is already gone from the map, so a failure above would
+    // otherwise leave the page resized for every later capture.
+    if (state.previousViewport != null) {
+      await context.page.setViewportSize(state.previousViewport);
+    }
   }
 };
 
@@ -157,7 +161,9 @@ async function captureFullPage(
       .locator('body')
       .evaluate((body, y) => {
         const view = body.ownerDocument.defaultView;
-        view?.scrollTo(0, y);
+        // A story that sets `scroll-behavior: smooth` would otherwise leave the
+        // read-back on the pre-scroll position.
+        view?.scrollTo({ top: y, left: 0, behavior: 'instant' });
         return view?.scrollY ?? 0;
       }, scrollY);
 
@@ -240,9 +246,13 @@ async function captureFullPage(
   );
 
   // Restore scroll position
-  await context.iframe
-    .locator('body')
-    .evaluate((body) => body.ownerDocument.defaultView?.scrollTo(0, 0));
+  await context.iframe.locator('body').evaluate((body) =>
+    body.ownerDocument.defaultView?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant',
+    }),
+  );
 
   return Buffer.from(stitchedB64, 'base64');
 }

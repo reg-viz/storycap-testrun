@@ -218,6 +218,8 @@ describe('createScreenshotFunction', () => {
     ).rejects.toThrow('prepare failed');
 
     expect(cleanupCapture).toHaveBeenCalledTimes(1);
+    expect(mockAdapter.waitForStable).not.toHaveBeenCalled();
+    expect(mockAdapter.takeScreenshot).not.toHaveBeenCalled();
   });
 
   test('should skip screenshot when parameters.skip is true', async () => {

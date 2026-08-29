@@ -236,18 +236,22 @@ storycap({
 });
 ```
 
-While a screenshot is taken, the Playwright context is resized to this size and restored afterwards, so hooks that run during the capture see the resized page. The resize is skipped when the Playwright context viewport already matches, which you can arrange through the browser instance:
+While a screenshot is taken, the Playwright context is resized to this size, so hooks that run during the capture see the resized page. The resize is skipped when the context viewport already matches, which you can arrange through the provider:
 
 ```javascript
 browser: {
-  instances: [
-    { browser: 'chromium', context: { viewport: { width: 1280, height: 720 } } },
-  ],
+  provider: playwright({
+    contextOptions: { viewport: { width: 1280, height: 720 } },
+  }),
+  instances: [{ browser: 'chromium' }],
 }
 ```
 
 > [!NOTE]
 > `page.viewport()` from `vitest/browser` does not change this size. It sizes the Vitest iframe during the test body only.
+
+> [!WARNING]
+> When the Playwright context has no viewport of its own, the resize is one-way: Playwright cannot turn viewport emulation back off, so the page stays at this size for the rest of the run. Vitest leaves the context viewport unset whenever `browser.ui` is enabled, which is the default outside CI — so a local run keeps the emulated viewport after the first screenshot. Setting `contextOptions.viewport` as above avoids it.
 
 ##### `output.dir`
 
