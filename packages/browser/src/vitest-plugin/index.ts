@@ -148,7 +148,6 @@ async function captureFullPage(
   options: TakeScreenshotParams[1],
 ): Promise<Buffer> {
   const chunks: string[] = [];
-  const chunkHeights: number[] = [];
 
   for (let scrollY = 0; scrollY < scrollHeight; scrollY += viewport.height) {
     await context.iframe
@@ -187,38 +186,52 @@ async function captureFullPage(
     });
 
     chunks.push(Buffer.from(chunkBuf).toString('base64'));
-    chunkHeights.push(chunkH);
   }
 
   // Stitch chunks using browser-native Canvas API (no external dependency)
   const mimeType = options.type === 'jpeg' ? 'image/jpeg' : 'image/png';
   const stitchedB64 = await context.page.evaluate(
-    async ({ images, width, heights, mime }) => {
-      const totalH = heights.reduce((a, b) => a + b, 0);
+    async ({ images, mime }) => {
+      // Sizing the canvas from the decoded chunks rather than the CSS-pixel
+      // viewport keeps the stitched image correct under a `deviceScaleFactor`
+      // other than 1, where each chunk comes back scaled.
+      const decoded = await Promise.all(
+        images.map(
+          (src, index) =>
+            new Promise<HTMLImageElement>((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve(img);
+              img.onerror = () =>
+                reject(
+                  new Error(`Failed to decode screenshot chunk ${index}.`),
+                );
+              img.src = `data:${mime};base64,${src}`;
+            }),
+        ),
+      );
+
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = totalH;
+      canvas.width = Math.max(...decoded.map((img) => img.naturalWidth));
+      canvas.height = decoded.reduce((sum, img) => sum + img.naturalHeight, 0);
       const ctx = canvas.getContext('2d')!;
 
       let y = 0;
-      for (let i = 0; i < images.length; i++) {
-        const img = new Image();
-        img.src = `data:${mime};base64,${images[i]}`;
-        await new Promise<void>((r) => {
-          img.onload = () => r();
-        });
+      for (const img of decoded) {
         ctx.drawImage(img, 0, y);
-        y += heights[i] ?? 0;
+        y += img.naturalHeight;
       }
 
-      return canvas.toDataURL(mime).split(',')[1] ?? '';
+      // A canvas past the browser's maximum dimensions yields an empty data URL,
+      // which would otherwise be written out as a zero-byte screenshot.
+      const encoded = canvas.toDataURL(mime).split(',')[1];
+      if (!encoded) {
+        throw new Error(
+          `Failed to encode a ${canvas.width}x${canvas.height} full-page screenshot; the canvas likely exceeds the browser's maximum size.`,
+        );
+      }
+      return encoded;
     },
-    {
-      images: chunks,
-      width: viewport.width,
-      heights: chunkHeights,
-      mime: mimeType,
-    },
+    { images: chunks, mime: mimeType },
   );
 
   // Restore scroll position
