@@ -382,9 +382,7 @@ These are parameters that can be specified for each Story.
 const meta: Meta<typeof Button> = {
   component: Button,
   parameters: {
-    screenshot: {
-      /* parameters... */
-    },
+    screenshot: {/* parameters... */},
   },
 };
 
