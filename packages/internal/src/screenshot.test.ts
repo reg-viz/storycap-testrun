@@ -204,6 +204,22 @@ describe('createScreenshotFunction', () => {
     };
   });
 
+  test('should run cleanupCapture when prepareCapture rejects', async () => {
+    const cleanupCapture = vi.fn().mockResolvedValue(undefined);
+    mockAdapter.prepareCapture = vi
+      .fn()
+      .mockRejectedValue(new Error('prepare failed'));
+    mockAdapter.cleanupCapture = cleanupCapture;
+
+    const screenshotFn = createScreenshotFunction(mockAdapter);
+
+    await expect(
+      screenshotFn({ id: 'page-1' }, { testId: 'test-1' }),
+    ).rejects.toThrow('prepare failed');
+
+    expect(cleanupCapture).toHaveBeenCalledTimes(1);
+  });
+
   test('should skip screenshot when parameters.skip is true', async () => {
     mockAdapter.getParameters = vi.fn().mockResolvedValue({ skip: true });
 

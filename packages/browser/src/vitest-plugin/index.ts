@@ -40,6 +40,7 @@ export type RestoreViewportResult = Promise<void>;
 
 type CaptureState = {
   wrapperStyle: string | null;
+  previousViewport: { width: number; height: number } | null;
 };
 
 // Test files get their own page and run concurrently, so prepareViewport and
@@ -65,7 +66,34 @@ const createPrepareViewport =
     const viewport = pluginViewport ??
       context.page.viewportSize() ?? { width: 1280, height: 720 };
 
-    const wrapperStyle = await context.page.evaluate(
+    // Playwright intersects a screenshot `clip` with the browser viewport, so a
+    // configured viewport wider or taller than the Playwright context viewport
+    // would be silently cropped. Resizing the context keeps layout, clipping
+    // and stitching in one coordinate space.
+    //
+    // A null viewport means emulation is off and the page follows the real
+    // window; enabling emulation there cannot be undone, so it only happens for
+    // a viewport the caller actually asked for.
+    const previousViewport = context.page.viewportSize();
+    const resized =
+      previousViewport == null
+        ? pluginViewport != null
+        : previousViewport.width !== viewport.width ||
+          previousViewport.height !== viewport.height;
+
+    if (resized) {
+      await context.page.setViewportSize(viewport);
+    }
+
+    // Recorded before the wrapper is touched so a failure there still leaves
+    // restoreViewport able to undo the resize.
+    const state: CaptureState = {
+      wrapperStyle: null,
+      previousViewport: resized ? previousViewport : null,
+    };
+    captureStates.set(context.page, state);
+
+    state.wrapperStyle = await context.page.evaluate(
       ({ w, h }) => {
         const iframe = document.querySelector(
           'iframe[data-vitest]',
@@ -79,8 +107,6 @@ const createPrepareViewport =
       },
       { w: viewport.width, h: viewport.height },
     );
-
-    captureStates.set(context.page, { wrapperStyle });
   };
 
 /**
@@ -104,6 +130,10 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
         iframe.parentElement.style.cssText = css;
       }
     }, state.wrapperStyle);
+  }
+
+  if (state.previousViewport != null) {
+    await context.page.setViewportSize(state.previousViewport);
   }
 };
 

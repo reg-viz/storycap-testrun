@@ -297,9 +297,9 @@ export const createScreenshotFunction = <
 
     // Prepare capture environment before any hooks run, so that all user hooks
     // (setup, preCapture, postCapture) see the correct layout dimensions.
-    await adapter.prepareCapture?.(page, ctx);
-
     try {
+      await adapter.prepareCapture?.(page, ctx);
+
       await processor.setup(page, ctx);
 
       await adapter.waitForStable(page, ctx, {
