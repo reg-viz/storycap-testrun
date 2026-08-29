@@ -7,14 +7,14 @@ on:
     types: [opened, synchronize]
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 22
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22, 24]
+        node: [22, 24]
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
@@ -57,7 +57,7 @@ jobs:
       actions: read
     strategy:
       matrix:
-        node: [20, 22, 24]
+        node: [22, 24]
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 

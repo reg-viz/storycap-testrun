@@ -3,7 +3,10 @@ minimumReleaseAge: 10080
 packages:
   - packages/*
 
-onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-  - lefthook
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+  lefthook: true
+
+overrides:
+  playwright-core: $playwright
