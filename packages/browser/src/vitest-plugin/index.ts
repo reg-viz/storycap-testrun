@@ -152,20 +152,63 @@ async function captureFullPage(
   options: TakeScreenshotParams[1],
 ): Promise<Buffer> {
   const chunks: string[] = [];
+  const totalChunks = Math.ceil(scrollHeight / viewport.height);
 
-  for (let scrollY = 0; scrollY < scrollHeight; scrollY += viewport.height) {
+  const stickyInfo = await context.iframe.locator('body').evaluate((body) => {
+    const doc = body.ownerDocument;
+    const view = doc.defaultView!;
+    const vh = view.innerHeight;
+    const elements = Array.from(doc.querySelectorAll<HTMLElement>('*')).filter(
+      (el) => {
+        const pos = view.getComputedStyle(el).position;
+        return pos === 'fixed' || pos === 'sticky';
+      },
+    );
+    return elements.map((el, i) => {
+      el.setAttribute('data-storycap-pinned-id', String(i));
+      const rect = el.getBoundingClientRect();
+      return {
+        id: i,
+        anchor: rect.top < vh / 2 ? ('top' as const) : ('bottom' as const),
+        originalVisibility: el.style.visibility,
+      };
+    });
+  });
+
+  for (
+    let scrollY = 0, chunkIndex = 0;
+    scrollY < scrollHeight;
+    scrollY += viewport.height, chunkIndex++
+  ) {
+    const isFirstChunk = chunkIndex === 0;
+    const isLastChunk = chunkIndex === totalChunks - 1;
+
     // The browser clamps a scroll past the bottom, so the requested offset is
     // read back rather than assumed: the last chunk sits at the bottom of the
     // viewport, not at its top.
-    const reachedScrollY = await context.iframe
-      .locator('body')
-      .evaluate((body, y) => {
-        const view = body.ownerDocument.defaultView;
+    const reachedScrollY = await context.iframe.locator('body').evaluate(
+      (body, { y, stickyInfo, isFirstChunk, isLastChunk }) => {
+        const doc = body.ownerDocument;
+        const view = doc.defaultView!;
+
+        for (const { id, anchor } of stickyInfo) {
+          const el = doc.querySelector<HTMLElement>(
+            `[data-storycap-pinned-id="${id}"]`,
+          );
+          if (!el) continue;
+          const keepVisible =
+            (anchor === 'top' && isFirstChunk) ||
+            (anchor === 'bottom' && isLastChunk);
+          el.style.visibility = keepVisible ? '' : 'hidden';
+        }
+
         // A story that sets `scroll-behavior: smooth` would otherwise leave the
         // read-back on the pre-scroll position.
-        view?.scrollTo({ top: y, left: 0, behavior: 'instant' });
-        return view?.scrollY ?? 0;
-      }, scrollY);
+        view.scrollTo({ top: y, left: 0, behavior: 'instant' });
+        return view.scrollY;
+      },
+      { y: scrollY, stickyInfo, isFirstChunk, isLastChunk },
+    );
 
     const remaining = scrollHeight - scrollY;
     const chunkH = Math.min(viewport.height, remaining);
@@ -198,6 +241,20 @@ async function captureFullPage(
 
     chunks.push(Buffer.from(chunkBuf).toString('base64'));
   }
+
+  // Restore pinned elements' original visibility and clean up marker attributes.
+  await context.iframe.locator('body').evaluate((body, stickyInfo) => {
+    const doc = body.ownerDocument;
+    for (const { id, originalVisibility } of stickyInfo) {
+      const el = doc.querySelector<HTMLElement>(
+        `[data-storycap-pinned-id="${id}"]`,
+      );
+      if (el) {
+        el.style.visibility = originalVisibility;
+        el.removeAttribute('data-storycap-pinned-id');
+      }
+    }
+  }, stickyInfo);
 
   // Stitch chunks using browser-native Canvas API (no external dependency)
   const mimeType = options.type === 'jpeg' ? 'image/jpeg' : 'image/png';
