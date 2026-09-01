@@ -9,10 +9,10 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^10.0.0-beta.13",
-    "@storybook/addon-docs": "^10.0.0-beta.13",
-    "@storybook/addon-vitest": "^10.0.0-beta.13",
-    "@storybook/react-vite": "^10.0.0-beta.13",
+    "@storybook/addon-a11y": "^10.5.10",
+    "@storybook/addon-docs": "^10.5.10",
+    "@storybook/addon-vitest": "^10.5.10",
+    "@storybook/react-vite": "^10.5.10",
     "@storycap-testrun/browser": "workspace:*",
     "@vitejs/plugin-react": "^5.0.2",
     "@vitest/browser-playwright": "^4.1.11",
@@ -22,7 +22,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^6.0.1",
-    "storybook": "^10.0.0-beta.13",
+    "storybook": "^10.5.10",
     "vite": "^7.1.5",
     "vitest": "^4.1.11"
   }
