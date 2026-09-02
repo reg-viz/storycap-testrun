@@ -31,7 +31,7 @@
     "@vitest/ui": "4.1.11",
     "happy-dom": "20.11.6",
     "lefthook": "2.1.10",
-    "oxfmt": "0.64.0",
+    "oxfmt": "0.65.0",
     "oxlint": "1.55.0",
     "oxlint-tsgolint": "7.0.2001",
     "playwright": "1.62.1",
