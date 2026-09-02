@@ -1,5 +1,12 @@
 # @storycap-testrun/node
 
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @storycap-testrun/internal@3.0.1
+
 ## 3.0.0
 
 ### Major Changes

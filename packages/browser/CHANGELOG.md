@@ -1,5 +1,16 @@
 # @storycap-testrun/browser
 
+## 3.0.1
+
+### Patch Changes
+
+- [#300](https://github.com/reg-viz/storycap-testrun/pull/300) [`42fafdb`](https://github.com/reg-viz/storycap-testrun/commit/42fafdb4e4942e6c7f5be07e7663af4818143a04) Thanks [@re-taro](https://github.com/re-taro)! - Capture content wider than the viewport in full-page screenshots
+
+  `fullPage: true` only stitched vertically, so content wider than the viewport — horizontally scrollable tables, lists, and similar layouts — was silently cropped to the viewport width. Full-page capture now tiles both axes: it scrolls horizontally as well, and stitches the chunks row by row, producing images sized to the content's full `scrollWidth` x `scrollHeight`. Vertical-only content produces byte-identical output to the previous behavior, and `deviceScaleFactor` other than 1 keeps working.
+
+- Updated dependencies []:
+  - @storycap-testrun/internal@3.0.1
+
 ## 3.0.0
 
 ### Major Changes
