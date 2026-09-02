@@ -143,66 +143,78 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
 
 /**
  * Captures a full-page screenshot by scrolling through the iframe and stitching
- * viewport-sized clips using the browser's Canvas API.
+ * viewport-sized clips using the browser's Canvas API. Content wider than the
+ * viewport is covered by scrolling horizontally as well, tiling row by row.
  */
 async function captureFullPage(
   context: Parameters<BrowserCommand<TakeScreenshotParams>>[0],
   viewport: { width: number; height: number },
-  scrollHeight: number,
+  scrollSize: { width: number; height: number },
   options: TakeScreenshotParams[1],
 ): Promise<Buffer> {
   const chunks: string[] = [];
+  const columns = Math.ceil(scrollSize.width / viewport.width);
 
-  for (let scrollY = 0; scrollY < scrollHeight; scrollY += viewport.height) {
-    // The browser clamps a scroll past the bottom, so the requested offset is
-    // read back rather than assumed: the last chunk sits at the bottom of the
-    // viewport, not at its top.
-    const reachedScrollY = await context.iframe
-      .locator('body')
-      .evaluate((body, y) => {
-        const view = body.ownerDocument.defaultView;
-        // A story that sets `scroll-behavior: smooth` would otherwise leave the
-        // read-back on the pre-scroll position.
-        view?.scrollTo({ top: y, left: 0, behavior: 'instant' });
-        return view?.scrollY ?? 0;
-      }, scrollY);
-
-    const remaining = scrollHeight - scrollY;
-    const chunkH = Math.min(viewport.height, remaining);
-    const chunkOffset = scrollY - reachedScrollY;
-
-    const iframeBox = await context.page
-      .locator('iframe[data-vitest]')
-      .boundingBox();
-    if (!iframeBox) {
-      throw new Error(
-        'Could not determine iframe position for full-page screenshot',
+  for (
+    let scrollY = 0;
+    scrollY < scrollSize.height;
+    scrollY += viewport.height
+  ) {
+    for (
+      let scrollX = 0;
+      scrollX < scrollSize.width;
+      scrollX += viewport.width
+    ) {
+      // The browser clamps a scroll past the edge, so the requested offset is
+      // read back rather than assumed: the last chunk sits at the bottom/right
+      // edge of the viewport, not at its top/left.
+      const reached = await context.iframe.locator('body').evaluate(
+        (body, { x, y }) => {
+          const view = body.ownerDocument.defaultView;
+          // A story that sets `scroll-behavior: smooth` would otherwise leave the
+          // read-back on the pre-scroll position.
+          view?.scrollTo({ top: y, left: x, behavior: 'instant' });
+          return { x: view?.scrollX ?? 0, y: view?.scrollY ?? 0 };
+        },
+        { x: scrollX, y: scrollY },
       );
+
+      const chunkW = Math.min(viewport.width, scrollSize.width - scrollX);
+      const chunkH = Math.min(viewport.height, scrollSize.height - scrollY);
+
+      const iframeBox = await context.page
+        .locator('iframe[data-vitest]')
+        .boundingBox();
+      if (!iframeBox) {
+        throw new Error(
+          'Could not determine iframe position for full-page screenshot',
+        );
+      }
+
+      const chunkBuf = await context.page.screenshot({
+        clip: {
+          x: iframeBox.x + (scrollX - reached.x),
+          y: iframeBox.y + (scrollY - reached.y),
+          width: chunkW,
+          height: chunkH,
+        },
+        animations: 'disabled',
+        caret: 'hide',
+        ...(options.omitBackground != null && {
+          omitBackground: options.omitBackground,
+        }),
+        ...(options.scale != null && { scale: options.scale }),
+        ...(options.type != null && { type: options.type }),
+      });
+
+      chunks.push(Buffer.from(chunkBuf).toString('base64'));
     }
-
-    const chunkBuf = await context.page.screenshot({
-      clip: {
-        x: iframeBox.x,
-        y: iframeBox.y + chunkOffset,
-        width: iframeBox.width,
-        height: chunkH,
-      },
-      animations: 'disabled',
-      caret: 'hide',
-      ...(options.omitBackground != null && {
-        omitBackground: options.omitBackground,
-      }),
-      ...(options.scale != null && { scale: options.scale }),
-      ...(options.type != null && { type: options.type }),
-    });
-
-    chunks.push(Buffer.from(chunkBuf).toString('base64'));
   }
 
   // Stitch chunks using browser-native Canvas API (no external dependency)
   const mimeType = options.type === 'jpeg' ? 'image/jpeg' : 'image/png';
   const stitchedB64 = await context.page.evaluate(
-    async ({ images, mime }) => {
+    async ({ images, columns: cols, mime }) => {
       // Sizing the canvas from the decoded chunks rather than the CSS-pixel
       // viewport keeps the stitched image correct under a `deviceScaleFactor`
       // other than 1, where each chunk comes back scaled.
@@ -221,15 +233,25 @@ async function captureFullPage(
         ),
       );
 
+      const firstRow = decoded.slice(0, cols);
+      const firstColumn = decoded.filter((_, index) => index % cols === 0);
       const canvas = document.createElement('canvas');
-      canvas.width = Math.max(...decoded.map((img) => img.naturalWidth));
-      canvas.height = decoded.reduce((sum, img) => sum + img.naturalHeight, 0);
+      canvas.width = firstRow.reduce((sum, img) => sum + img.naturalWidth, 0);
+      canvas.height = firstColumn.reduce(
+        (sum, img) => sum + img.naturalHeight,
+        0,
+      );
       const ctx = canvas.getContext('2d')!;
 
       let y = 0;
-      for (const img of decoded) {
-        ctx.drawImage(img, 0, y);
-        y += img.naturalHeight;
+      for (let row = 0; row * cols < decoded.length; row += 1) {
+        const rowImages = decoded.slice(row * cols, (row + 1) * cols);
+        let x = 0;
+        for (const img of rowImages) {
+          ctx.drawImage(img, x, y);
+          x += img.naturalWidth;
+        }
+        y += rowImages[0]!.naturalHeight;
       }
 
       // A canvas past the browser's maximum dimensions yields an empty data URL,
@@ -242,7 +264,7 @@ async function captureFullPage(
       }
       return encoded;
     },
-    { images: chunks, mime: mimeType },
+    { images: chunks, columns, mime: mimeType },
   );
 
   // Restore scroll position
@@ -303,23 +325,22 @@ const createTakeScreenshot =
         }),
       );
     } else {
-      // Full-page capture: stitch if content exceeds viewport
-      const scrollHeight = await context.iframe
+      // Full-page capture: stitch if content exceeds viewport in either axis
+      const scrollSize = await context.iframe
         .locator('body')
-        .evaluate((body) =>
-          Math.max(
-            body.scrollHeight,
-            body.ownerDocument.documentElement.scrollHeight,
-          ),
-        );
+        .evaluate((body) => {
+          const documentElement = body.ownerDocument.documentElement;
+          return {
+            width: Math.max(body.scrollWidth, documentElement.scrollWidth),
+            height: Math.max(body.scrollHeight, documentElement.scrollHeight),
+          };
+        });
 
-      if (scrollHeight > viewport.height) {
-        buffer = await captureFullPage(
-          context,
-          viewport,
-          scrollHeight,
-          options,
-        );
+      if (
+        scrollSize.height > viewport.height ||
+        scrollSize.width > viewport.width
+      ) {
+        buffer = await captureFullPage(context, viewport, scrollSize, options);
       } else {
         const screenshotOptions: Parameters<
           ReturnType<typeof context.iframe.locator>['screenshot']
