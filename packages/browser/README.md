@@ -68,7 +68,7 @@ This makes it ideal for teams who need more than basic screenshots - providing t
 - **Browser environment constraints**
   - Limited to capabilities available in browser context.
 - **Full-page screenshots with `position: fixed/sticky`**
-  - When capturing full-page screenshots of content taller than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
+  - When capturing full-page screenshots of content larger than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
 - **Incompatible with `browser.ui`**
   - The Vitest UI keeps mutating the page, so the CDP metrics never settle and every capture ends in `MetricsTimeoutError`. `browser.ui` is already off whenever `headless: true` is set.
 - **Only Chromium is exercised**
@@ -451,7 +451,7 @@ export const ViewportOnly = {
 ```
 
 > [!NOTE]
-> When `fullPage` is `true` and content exceeds the viewport height, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
+> When `fullPage` is `true` and content exceeds the viewport height or width, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
 
 ### `omitBackground`
 
