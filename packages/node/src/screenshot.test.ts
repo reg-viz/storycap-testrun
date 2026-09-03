@@ -141,6 +141,7 @@ describe('createNodeScreenshotAdapter', () => {
       omitBackground: false,
       scale: 'device' as const,
       type: 'png' as const,
+      viewport: null,
     };
 
     const result = await adapter.takeScreenshot(mockPage, filepath, options);
@@ -165,6 +166,7 @@ describe('createNodeScreenshotAdapter', () => {
       omitBackground: true,
       scale: 'css' as const,
       type: 'jpeg' as const,
+      viewport: null,
     };
 
     await adapter.takeScreenshot(mockPage, filepath, options);

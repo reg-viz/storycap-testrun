@@ -9,6 +9,16 @@ export type ScreenshotMaskConfig = {
 };
 
 /**
+ * Per-story viewport override for screenshot capture.
+ * Omitted dimensions fall back to the globally configured viewport,
+ * so a story can override only the height (or width) it needs.
+ */
+export type ScreenshotViewportConfig = {
+  width?: number;
+  height?: number;
+};
+
+/**
  * Optional parameters for controlling screenshot behavior
  */
 export type ScreenshotParameters = {
@@ -19,6 +29,7 @@ export type ScreenshotParameters = {
   fullPage?: boolean | null;
   omitBackground?: boolean | null;
   scale?: 'css' | 'device' | null;
+  viewport?: ScreenshotViewportConfig | null;
 };
 
 /**
@@ -44,6 +55,7 @@ const defaultScreenshotParameters = {
   fullPage: null,
   omitBackground: null,
   scale: null,
+  viewport: null,
 } satisfies ScreenshotParameters;
 
 /**

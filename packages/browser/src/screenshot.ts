@@ -124,11 +124,12 @@ export const createBrowserScreenshotAdapter = (): ScreenshotAdapter<
       omitBackground: options.omitBackground,
       scale: options.scale,
       type: options.type,
+      viewport: options.viewport,
     });
   },
 
-  prepareCapture: async () => {
-    await commands.__storycap_prepareViewport();
+  prepareCapture: async (_page, _context, viewport) => {
+    await commands.__storycap_prepareViewport(viewport);
   },
 
   cleanupCapture: async () => {

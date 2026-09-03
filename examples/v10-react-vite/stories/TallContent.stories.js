@@ -23,3 +23,16 @@ export const ViewportOnly = {
     },
   },
 };
+
+/**
+ * Per-story viewport override — keeps the configured width and captures the
+ * viewport area at 1000px height (vs the 720px default)
+ */
+export const ViewportOverride = {
+  parameters: {
+    screenshot: {
+      fullPage: false,
+      viewport: { height: 1000 },
+    },
+  },
+};

@@ -12,6 +12,8 @@ vi.mock('vitest/browser', () => ({
     __storycap_takeScreenshot: vi
       .fn()
       .mockResolvedValue('base64-screenshot-data'),
+    __storycap_prepareViewport: vi.fn().mockResolvedValue(undefined),
+    __storycap_restoreViewport: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -171,6 +173,7 @@ describe('createBrowserScreenshotAdapter', () => {
       omitBackground: false,
       scale: 'device' as const,
       type: 'png' as const,
+      viewport: null,
     };
 
     const result = await adapter.takeScreenshot(mockPage, filepath, options);
@@ -180,6 +183,7 @@ describe('createBrowserScreenshotAdapter', () => {
       omitBackground: false,
       scale: 'device',
       type: 'png',
+      viewport: null,
     });
     expect(result).toBe('base64-screenshot-data');
   });
@@ -193,6 +197,7 @@ describe('createBrowserScreenshotAdapter', () => {
       omitBackground: true,
       scale: 'css' as const,
       type: 'jpeg' as const,
+      viewport: null,
     };
 
     await adapter.takeScreenshot(mockPage, filepath, options);
@@ -202,7 +207,38 @@ describe('createBrowserScreenshotAdapter', () => {
       omitBackground: true,
       scale: 'css',
       type: 'jpeg',
+      viewport: null,
     });
+  });
+
+  test('should forward per-story viewport override to browser commands', async () => {
+    const { commands } = await import('vitest/browser');
+    const adapter = createBrowserScreenshotAdapter();
+    const context = { id: 'test-id', name: 'test-name', file: 'test.ts' };
+    const viewport = { height: 800 };
+
+    await adapter.prepareCapture?.(mockPage, context, viewport);
+
+    expect(commands.__storycap_prepareViewport).toHaveBeenCalledWith(viewport);
+
+    await adapter.takeScreenshot(mockPage, '/test/screenshot.png', {
+      fullPage: true,
+      omitBackground: false,
+      scale: 'device',
+      type: 'png',
+      viewport,
+    });
+
+    expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(
+      '/test/screenshot.png',
+      {
+        fullPage: true,
+        omitBackground: false,
+        scale: 'device',
+        type: 'png',
+        viewport,
+      },
+    );
   });
 
   test('should return hook creation functions', async () => {
