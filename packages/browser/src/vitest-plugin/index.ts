@@ -5,6 +5,7 @@ import type { Plugin } from 'vitest/config';
 import {
   resolveScreenshotFilename,
   type ScreenshotOutputOptions,
+  type ScreenshotViewportConfig,
 } from '@storycap-testrun/internal';
 import type { BrowserScreenshotContext } from '../context';
 
@@ -28,11 +29,14 @@ export type TakeScreenshotParams = [
     omitBackground?: boolean;
     scale?: 'css' | 'device';
     type?: 'jpeg' | 'png';
+    viewport?: ScreenshotViewportConfig | null;
   },
 ];
 export type TakeScreenshotResult = Promise<string>;
 
-export type PrepareViewportParams = [];
+export type PrepareViewportParams = [
+  viewportOverride?: ScreenshotViewportConfig | null,
+];
 export type PrepareViewportResult = Promise<void>;
 
 export type RestoreViewportParams = [];
@@ -52,6 +56,23 @@ const captureStates = new WeakMap<
 >();
 
 /**
+ * Resolves the viewport a capture is taken at. A per-story override wins over
+ * the plugin option, which wins over the live Playwright context viewport.
+ * The override is partial, so a story can change only one dimension.
+ */
+const resolveCaptureViewport = (
+  pluginViewport: { width: number; height: number } | undefined,
+  pageViewport: { width: number; height: number } | null,
+  override: ScreenshotViewportConfig | null | undefined,
+): { width: number; height: number } => {
+  const base = pluginViewport ?? pageViewport ?? { width: 1280, height: 720 };
+  return {
+    width: override?.width ?? base.width,
+    height: override?.height ?? base.height,
+  };
+};
+
+/**
  * Prepares the iframe viewport for screenshot capture.
  * Sets the iframe wrapper to the configured viewport size with `transform: none`.
  * Must be called before any hooks so that mask positions and user hooks
@@ -62,9 +83,13 @@ const createPrepareViewport =
     width: number;
     height: number;
   }): BrowserCommand<PrepareViewportParams> =>
-  async (context): PrepareViewportResult => {
-    const viewport = pluginViewport ??
-      context.page.viewportSize() ?? { width: 1280, height: 720 };
+  async (context, viewportOverride): PrepareViewportResult => {
+    const previousViewport = context.page.viewportSize();
+    const viewport = resolveCaptureViewport(
+      pluginViewport,
+      previousViewport,
+      viewportOverride,
+    );
 
     // Playwright intersects a screenshot `clip` with the browser viewport, so a
     // configured viewport wider or taller than the Playwright context viewport
@@ -74,10 +99,11 @@ const createPrepareViewport =
     // A null viewport means emulation is off and the page follows the real
     // window; enabling emulation there cannot be undone, so it only happens for
     // a viewport the caller actually asked for.
-    const previousViewport = context.page.viewportSize();
+    const hasOverride =
+      viewportOverride?.width != null || viewportOverride?.height != null;
     const resized =
       previousViewport == null
-        ? pluginViewport != null
+        ? pluginViewport != null || hasOverride
         : previousViewport.width !== viewport.width ||
           previousViewport.height !== viewport.height;
 
@@ -289,8 +315,11 @@ const createTakeScreenshot =
     height: number;
   }): BrowserCommand<TakeScreenshotParams> =>
   async (context, filepath, options): TakeScreenshotResult => {
-    const viewport = pluginViewport ??
-      context.page.viewportSize() ?? { width: 1280, height: 720 };
+    const viewport = resolveCaptureViewport(
+      pluginViewport,
+      context.page.viewportSize(),
+      options.viewport,
+    );
 
     let buffer: Buffer;
 

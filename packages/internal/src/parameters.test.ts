@@ -13,6 +13,7 @@ describe('resolveScreenshotParameters', () => {
       fullPage: null,
       omitBackground: null,
       scale: null,
+      viewport: null,
     });
   });
 
@@ -31,6 +32,7 @@ describe('resolveScreenshotParameters', () => {
       fullPage: null,
       omitBackground: null,
       scale: null,
+      viewport: null,
     });
   });
 
@@ -71,6 +73,7 @@ describe('resolveScreenshotParameters', () => {
       fullPage: false,
       omitBackground: null,
       scale: null,
+      viewport: null,
     });
   });
 
@@ -87,7 +90,22 @@ describe('resolveScreenshotParameters', () => {
       fullPage: null,
       omitBackground: null,
       scale: 'css',
+      viewport: null,
     });
+  });
+
+  test('should pass through partial viewport override', () => {
+    const result = resolveScreenshotParameters({
+      viewport: { height: 800 },
+    });
+
+    expect(result.viewport).toEqual({ height: 800 });
+  });
+
+  test('should default viewport to null', () => {
+    const result = resolveScreenshotParameters({});
+
+    expect(result.viewport).toBeNull();
   });
 
   test('should allow custom mask color', () => {

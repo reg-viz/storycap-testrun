@@ -2,7 +2,11 @@ import type { ScreenshotContext } from './context';
 import { RetakeExceededError } from './error';
 import type { ScreenshotHook } from './hook';
 import { createHookProcessor } from './hook';
-import type { ScreenshotParameters, ScreenshotMaskConfig } from './parameters';
+import type {
+  ScreenshotParameters,
+  ScreenshotMaskConfig,
+  ScreenshotViewportConfig,
+} from './parameters';
 import { resolveScreenshotParameters } from './parameters';
 import { sleep, type RequiredDeep } from './utility';
 
@@ -218,12 +222,16 @@ export type ScreenshotAdapter<
   ) => Promise<void>;
 
   /**
-   * Takes actual screenshot with specified options
+   * Takes actual screenshot with specified options.
+   * `viewport` carries the per-story viewport override, if any.
    */
   takeScreenshot: (
     page: Page,
     filepath: string,
-    options: RequiredDeep<ScreenshotImageOptions> & { type: 'jpeg' | 'png' },
+    options: RequiredDeep<ScreenshotImageOptions> & {
+      type: 'jpeg' | 'png';
+      viewport: ScreenshotViewportConfig | null;
+    },
   ) => Promise<any>;
 
   /**
@@ -246,8 +254,13 @@ export type ScreenshotAdapter<
   /**
    * Prepares the capture environment before hooks run (e.g., adjust viewport/iframe).
    * Called before hooks.setup() so that all user hooks see the correct layout.
+   * `viewport` carries the per-story viewport override, if any.
    */
-  prepareCapture?: (page: Page, context: SContext) => Promise<void>;
+  prepareCapture?: (
+    page: Page,
+    context: SContext,
+    viewport: ScreenshotViewportConfig | null,
+  ) => Promise<void>;
 
   /**
    * Restores the capture environment after the full capture flow completes.
@@ -298,7 +311,7 @@ export const createScreenshotFunction = <
     try {
       // Runs before the hooks so that mask positions and user hooks read the
       // layout dimensions the screenshot will actually be taken at.
-      await adapter.prepareCapture?.(page, ctx);
+      await adapter.prepareCapture?.(page, ctx, params.viewport);
 
       await processor.setup(page, ctx);
 
@@ -333,6 +346,7 @@ export const createScreenshotFunction = <
           return adapter.takeScreenshot(page, filepath, {
             ...imageOptions,
             type,
+            viewport: params.viewport,
           });
         },
         adapter.createHash,
