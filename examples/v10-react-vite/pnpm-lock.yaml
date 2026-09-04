@@ -63,9 +63,6 @@ importers:
         specifier: workspace:*
         version: link:../internal
     devDependencies:
-      '@types/node':
-        specifier: ^26.3.0
-        version: 26.4.0
       '@vitest/browser-playwright':
         specifier: 4.1.11
         version: 4.1.11(playwright@1.62.1)(vite@7.1.12(@types/node@26.4.0))(vitest@4.1.11)
