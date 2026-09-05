@@ -1,5 +1,12 @@
 # @storycap-testrun/node
 
+## 3.1.0
+
+### Patch Changes
+
+- Updated dependencies [[`9c86255`](https://github.com/reg-viz/storycap-testrun/commit/9c86255fefe60422f8e1ee0e71a82b5a993f3e06)]:
+  - @storycap-testrun/internal@3.1.0
+
 ## 3.0.1
 
 ### Patch Changes
