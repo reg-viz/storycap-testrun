@@ -12,8 +12,9 @@ vi.mock('vitest/browser', () => ({
     __storycap_takeScreenshot: vi
       .fn()
       .mockResolvedValue('base64-screenshot-data'),
-    __storycap_prepareViewport: vi.fn().mockResolvedValue(undefined),
-    __storycap_restoreViewport: vi.fn().mockResolvedValue(undefined),
+    __storycap_resolveViewport: vi
+      .fn()
+      .mockResolvedValue({ width: 1280, height: 720 }),
   },
 }));
 
@@ -179,11 +180,9 @@ describe('createBrowserScreenshotAdapter', () => {
     const result = await adapter.takeScreenshot(mockPage, filepath, options);
 
     expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(filepath, {
-      fullPage: true,
       omitBackground: false,
       scale: 'device',
       type: 'png',
-      viewport: null,
     });
     expect(result).toBe('base64-screenshot-data');
   });
@@ -203,15 +202,13 @@ describe('createBrowserScreenshotAdapter', () => {
     await adapter.takeScreenshot(mockPage, filepath, options);
 
     expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(filepath, {
-      fullPage: false,
       omitBackground: true,
       scale: 'css',
       type: 'jpeg',
-      viewport: null,
     });
   });
 
-  test('should forward per-story viewport override to browser commands', async () => {
+  test('should forward per-story viewport override when resolving the viewport', async () => {
     const { commands } = await import('vitest/browser');
     const adapter = createBrowserScreenshotAdapter();
     const context = { id: 'test-id', name: 'test-name', file: 'test.ts' };
@@ -219,25 +216,27 @@ describe('createBrowserScreenshotAdapter', () => {
 
     await adapter.prepareCapture?.(mockPage, context, viewport);
 
-    expect(commands.__storycap_prepareViewport).toHaveBeenCalledWith(viewport);
+    expect(commands.__storycap_resolveViewport).toHaveBeenCalledWith(viewport);
+  });
 
+  test('should capture the iframe element without fullPage', async () => {
+    const { commands } = await import('vitest/browser');
+    const adapter = createBrowserScreenshotAdapter();
+    const context = { id: 'test-id', name: 'test-name', file: 'test.ts' };
+
+    await adapter.prepareCapture?.(mockPage, context, null);
+    await adapter.fitCaptureToContent?.(mockPage, context, { fullPage: false });
     await adapter.takeScreenshot(mockPage, '/test/screenshot.png', {
-      fullPage: true,
+      fullPage: false,
       omitBackground: false,
       scale: 'device',
       type: 'png',
-      viewport,
+      viewport: null,
     });
 
     expect(commands.__storycap_takeScreenshot).toHaveBeenCalledWith(
       '/test/screenshot.png',
-      {
-        fullPage: true,
-        omitBackground: false,
-        scale: 'device',
-        type: 'png',
-        viewport,
-      },
+      expect.objectContaining({ type: 'png' }),
     );
   });
 

@@ -263,6 +263,19 @@ export type ScreenshotAdapter<
   ) => Promise<void>;
 
   /**
+   * Grows the capture surface to fit the page content.
+   *
+   * Runs once the page is stable, so the content measurement is not taken
+   * while fonts and images are still reflowing, but before hooks.preCapture()
+   * so that masks are positioned against the layout that gets captured.
+   */
+  fitCaptureToContent?: (
+    page: Page,
+    context: SContext,
+    options: { fullPage: boolean },
+  ) => Promise<void>;
+
+  /**
    * Restores the capture environment after the full capture flow completes.
    * Always called in a finally block to guarantee cleanup even on errors.
    */
@@ -323,15 +336,6 @@ export const createScreenshotFunction = <
         await sleep(params.delay);
       }
 
-      await processor.preCapture(page, ctx);
-
-      const filepath = await adapter.resolveFilepath(ctx);
-      const type = JPEG_EXTENSIONS.has(
-        filepath.slice(filepath.lastIndexOf('.')),
-      )
-        ? 'jpeg'
-        : 'png';
-
       const imageOptions = {
         ...opts.image,
         ...(params.fullPage != null && { fullPage: params.fullPage }),
@@ -340,6 +344,19 @@ export const createScreenshotFunction = <
         }),
         ...(params.scale != null && { scale: params.scale }),
       };
+
+      await adapter.fitCaptureToContent?.(page, ctx, {
+        fullPage: imageOptions.fullPage,
+      });
+
+      await processor.preCapture(page, ctx);
+
+      const filepath = await adapter.resolveFilepath(ctx);
+      const type = JPEG_EXTENSIONS.has(
+        filepath.slice(filepath.lastIndexOf('.')),
+      )
+        ? 'jpeg'
+        : 'png';
 
       await retakeScreenshotIfNeeded(
         async () => {

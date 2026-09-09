@@ -454,7 +454,7 @@ export const ViewportOnly = {
 ```
 
 > [!NOTE]
-> When `fullPage` is `true` and content exceeds the viewport height or width, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
+> When `fullPage` is `true` and content exceeds the viewport, the story's iframe is grown to the size of its content and captured in one screenshot, so `position: fixed` and `position: sticky` elements render exactly once. Viewport-relative units are pinned to their current pixel lengths while this happens, so `100vh` does not grow with the iframe. A length computed from `window.innerHeight` in JavaScript, or one in a cross-origin stylesheet, cannot be pinned — those stories are captured at the viewport size and log a warning naming the cropped axis.
 
 ### `omitBackground`
 
