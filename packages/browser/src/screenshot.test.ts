@@ -241,6 +241,19 @@ describe('createBrowserScreenshotAdapter', () => {
     );
   });
 
+  test('should not forward a null viewport override to the browser command', async () => {
+    const { commands } = await import('vitest/browser');
+    const adapter = createBrowserScreenshotAdapter();
+    const context = { id: 'test-id', name: 'test-name', file: 'test.ts' };
+
+    await adapter.prepareCapture?.(mockPage, context, null);
+
+    // Vitest 5 throws on a `null` first argument while probing for a Locator,
+    // so the resolved `viewport: null` default must not reach the command.
+    expect(commands.__storycap_prepareViewport).toHaveBeenCalledTimes(1);
+    expect(commands.__storycap_prepareViewport).toHaveBeenCalledWith();
+  });
+
   test('should return hook creation functions', async () => {
     const { createAnimationsHook } = await import('./hooks/animation.js');
     const { createRemovalHook } = await import('./hooks/removal.js');

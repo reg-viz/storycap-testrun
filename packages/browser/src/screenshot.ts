@@ -129,6 +129,13 @@ export const createBrowserScreenshotAdapter = (): ScreenshotAdapter<
   },
 
   prepareCapture: async (_page, _context, viewport) => {
+    // Vitest 5 checks whether the first command argument is a Locator with
+    // `'selector' in args[0]`, which throws on `null`. Send no argument when
+    // there is no per-story override instead of forwarding the `null` default.
+    if (viewport == null) {
+      await commands.__storycap_prepareViewport();
+      return;
+    }
     await commands.__storycap_prepareViewport(viewport);
   },
 
