@@ -1,0 +1,8 @@
+packages:
+  - '.'
+  - '../../packages/internal'
+  - '../../packages/browser'
+
+allowBuilds:
+  '@swc/core': true
+  esbuild: true

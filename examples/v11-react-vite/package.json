@@ -1,0 +1,29 @@
+{
+  "name": "@examples/v11-react-vite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build-storybook": "storybook build",
+    "clean": "rimraf storybook-static __screenshots__",
+    "storybook": "storybook dev -p 6011",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "11.0.0-alpha.0",
+    "@storybook/addon-docs": "11.0.0-alpha.0",
+    "@storybook/addon-vitest": "11.0.0-alpha.0",
+    "@storybook/react-vite": "11.0.0-alpha.0",
+    "@storycap-testrun/browser": "workspace:*",
+    "@vitejs/plugin-react": "^5.0.2",
+    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/coverage-v8": "^4.1.11",
+    "playwright": "1.63.0",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^6.0.1",
+    "storybook": "11.0.0-alpha.0",
+    "vite": "^7.1.5",
+    "vitest": "^4.1.11"
+  }
+}
