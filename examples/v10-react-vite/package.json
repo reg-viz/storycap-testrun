@@ -17,7 +17,7 @@
     "@vitejs/plugin-react": "^5.0.2",
     "@vitest/browser-playwright": "^4.1.11",
     "@vitest/coverage-v8": "^4.1.11",
-    "playwright": "1.62.1",
+    "playwright": "1.63.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
