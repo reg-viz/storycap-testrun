@@ -4,47 +4,62 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize]
 
-env:
-  NODE_VERSION: 22
+permissions: {}
+
+concurrency:
+  # Pushes are keyed by SHA so that every main commit completes and uploads
+  # the reg artifact that later PRs use as their visual regression baseline.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # checkout
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: pnpm build
       - run: pnpm lint
 
   typecheck:
+    name: Typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # checkout
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - run: pnpm build
       - run: pnpm typecheck
 
   test:
+    name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    # automerge-gate's timeout must exceed test + vrt.
+    timeout-minutes: 10
     permissions:
-      contents: write
-      pull-requests: write
-      actions: read
+      contents: read # checkout
     strategy:
       matrix:
         node: [22, 24]
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-node
         with:
@@ -68,15 +83,36 @@ jobs:
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always() && matrix.node == env.NODE_VERSION
+        if: always() && matrix.node == 22
         with:
           name: component-screenshots
           path: __screenshots__/
           retention-days: 90
 
-      - name: Visual Regression Test
-        uses: reg-viz/reg-actions@480d59a2a63da144e914883346f5120f27701310 # v2
-        if: matrix.node == env.NODE_VERSION
+  # Kept apart from test so that example installs and Storybook builds never
+  # run in a job holding a write token.
+  vrt:
+    name: Visual Regression Test
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read # find the base commit's reg artifact
+      contents: write # push report images to the reg_actions branch
+      pull-requests: write # post and minimize report comments
+    steps:
+      # reg-actions runs git fetch and merge-base in the workspace to find the base commit.
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: component-screenshots
+          path: __screenshots__
+
+      # v2 is a branch, not a tag: reg-actions publishes no releases.
+      - uses: reg-viz/reg-actions@480d59a2a63da144e914883346f5120f27701310 # v2
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           image-directory-path: './__screenshots__'
@@ -86,25 +122,45 @@ jobs:
           threshold-pixel: 40
 
   publish:
+    name: Publish
     runs-on: ubuntu-latest
     if: github.repository == 'reg-viz/storycap-testrun' && github.ref == 'refs/heads/main'
     needs: [lint, typecheck, test]
+    # Environment secrets restricted to main keep the App key away from
+    # workflows edited on other branches, which the job-level `if` cannot do.
+    environment: release
+    timeout-minutes: 15
+    concurrency:
+      group: publish
+      cancel-in-progress: false
     permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
+      contents: read # checkout; repository writes use the App token
+      id-token: write # npm trusted publishing with provenance
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
 
+      # Restoring a cache in a release job lets a poisoned cache reach published packages.
       - uses: ./.github/actions/setup-node
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          cache: 'false'
 
-      - run: npm i -g npm@latest
       - run: pnpm build
+
+      # A GITHUB_TOKEN-created release PR needs manual approval before its workflows run.
+      # Minted last so dependency install and build scripts never run while it is live.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Create Release Pull Request
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
         with:
+          github-token: ${{ steps.app-token.outputs.token }}
           publish-script: pnpm release
           commit-message: 'chore: version packages'
