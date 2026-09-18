@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    playwright:
+      specifier: 1.63.0
+      version: 1.63.0
+
 overrides:
   '@swc/core': 1.10.0
   playwright-core: 1.63.0
@@ -52,7 +58,7 @@ importers:
         specifier: ^14.1.1
         version: 14.1.1(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       playwright:
-        specifier: 1.63.0
+        specifier: 'catalog:'
         version: 1.63.0
       prop-types:
         specifier: ^15.8.1
@@ -85,7 +91,7 @@ importers:
         version: link:../internal
       playwright:
         specifier: '*'
-        version: 1.57.0
+        version: 1.63.0
     devDependencies:
       '@storybook/test-runner':
         specifier: 0.23.0
@@ -1688,11 +1694,6 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
-  fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -2424,11 +2425,6 @@ packages:
   playwright-core@1.63.0:
     resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
     engines: {node: '>=20'}
-    hasBin: true
-
-  playwright@1.57.0:
-    resolution: {integrity: sha512-ilYQj1s8sr2ppEJ2YVadYBN0Mb3mdo9J0wQ+UuDhzYqURwSoW4n1Xs5vs7ORwgDGmyEh33tRMeS8KhdkMoLXQw==}
-    engines: {node: '>=18'}
     hasBin: true
 
   playwright@1.63.0:
@@ -4698,8 +4694,6 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
-  fsevents@2.3.2: {}
-
   fsevents@2.3.3:
     optional: true
 
@@ -5645,12 +5639,6 @@ snapshots:
       find-up: 4.1.0
 
   playwright-core@1.63.0: {}
-
-  playwright@1.57.0:
-    dependencies:
-      playwright-core: 1.63.0
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.63.0:
     dependencies:
