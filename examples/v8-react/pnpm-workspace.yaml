@@ -1,6 +1,7 @@
 packages:
   - '.'
-  - '../../packages/*'
+  - '../../packages/internal'
+  - '../../packages/node'
 
 overrides:
   '@swc/core': 1.10.0
