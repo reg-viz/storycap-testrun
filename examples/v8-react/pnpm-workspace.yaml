@@ -1,3 +1,7 @@
+catalog:
+  playwright: 1.63.0
+  playwright-core: 1.63.0
+
 packages:
   - '.'
   - '../../packages/internal'
@@ -5,7 +9,7 @@ packages:
 
 overrides:
   '@swc/core': 1.10.0
-  playwright-core: $playwright
+  playwright-core: 'catalog:'
 
 allowBuilds:
   '@swc/core': true

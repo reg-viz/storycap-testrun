@@ -1,5 +1,9 @@
 minimumReleaseAge: 10080
 
+catalog:
+  playwright: 1.63.0
+  playwright-core: 1.63.0
+
 packages:
   - packages/*
 
@@ -9,4 +13,4 @@ allowBuilds:
   lefthook: true
 
 overrides:
-  playwright-core: $playwright
+  playwright-core: 'catalog:'
