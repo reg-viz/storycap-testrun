@@ -86,13 +86,14 @@ Multi-layer approach:
 
 ## Examples
 
-Four example projects in `examples/` (each with own `pnpm-lock.yaml`, independent of monorepo workspace).
+Five example projects in `examples/` (each with own `pnpm-lock.yaml`, independent of monorepo workspace).
 Each example has its own dependencies — run `pnpm install` inside the example dir before testing individually.
 
 - `v8-react` — test-runner + `@storycap-testrun/node`
-- `v9-react` — test-runner + `@storycap-testrun/node`
 - `v9-react-vite` — addon-vitest + `@storycap-testrun/browser`
 - `v10-react-vite` — addon-vitest + `@storycap-testrun/browser`
+- `v11-react` — test-runner + `@storycap-testrun/node` (Storybook 11 prerelease, CSF Next)
+- `v11-react-vite` — addon-vitest + `@storycap-testrun/browser` (Storybook 11 prerelease, CSF Next)
 
 ## Release
 

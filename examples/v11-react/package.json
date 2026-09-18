@@ -1,0 +1,30 @@
+{
+  "name": "@examples/v11-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf storybook-static __screenshots__",
+    "storybook": "storybook dev -p 6010",
+    "storybook:build": "storybook build",
+    "storybook:serve": "http-server storybook-static --port 6010 --silent",
+    "storybook:test": "wait-on tcp:127.0.0.1:6010 && test-storybook --url http://127.0.0.1:6010",
+    "test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm storybook:build --quiet --test && pnpm storybook:serve\" \"pnpm storybook:test\""
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "11.0.0-alpha.0",
+    "@storybook/addon-docs": "11.0.0-alpha.0",
+    "@storybook/react-vite": "11.0.0-alpha.0",
+    "@storybook/test-runner": "0.24.5",
+    "@storycap-testrun/node": "file:../../packages/node",
+    "concurrently": "^9.1.2",
+    "http-server": "^14.1.1",
+    "playwright": "catalog:",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^6.0.1",
+    "storybook": "11.0.0-alpha.0",
+    "vite": "^7.1.5",
+    "wait-on": "^9.0.0"
+  }
+}
