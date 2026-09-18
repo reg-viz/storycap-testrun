@@ -111,8 +111,8 @@ jobs:
           name: component-screenshots
           path: __screenshots__
 
-      # v2 is a branch, not a tag: reg-actions publishes no releases.
-      - uses: reg-viz/reg-actions@480d59a2a63da144e914883346f5120f27701310 # v2
+      # v3 is a branch, not a tag: reg-actions publishes no releases.
+      - uses: reg-viz/reg-actions@f0cccbcab7e7ecf9b0434b719f1e842c97bcd2a7 # v3
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           image-directory-path: './__screenshots__'
