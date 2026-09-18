@@ -30,8 +30,8 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(vitest@4.1.11)
       happy-dom:
-        specifier: 20.11.15
-        version: 20.11.15
+        specifier: 20.14.3
+        version: 20.14.3
       lefthook:
         specifier: 2.1.12
         version: 2.1.12
@@ -58,7 +58,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
       zx:
         specifier: 8.8.5
         version: 8.8.5
@@ -74,7 +74,7 @@ importers:
         version: 4.1.11(playwright@1.62.1)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))(vitest@4.1.11)
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
 
   packages/internal: {}
 
@@ -2383,8 +2383,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  happy-dom@20.11.15:
-    resolution: {integrity: sha512-bj2gQIKzOYB6GAAJ/jrN/IFHQe79MhEOiMAspRRWiKebRoegvGDv2B6eUt8KiZMTEDvx6ri0fAF7Xh/umAUUZA==}
+  happy-dom@20.14.3:
+    resolution: {integrity: sha512-0KMb/Eh8rsd+aMNkOk5h8LkAjo9Na1aksnEGmsuZf+GXl6UkAdIi0VbUHU7d59lXhNmawODgwwuCMiZpCxwwCw==}
     engines: {node: '>=20.0.0'}
 
   has-flag@3.0.0:
@@ -4966,7 +4966,7 @@ snapshots:
       '@vitest/mocker': 4.1.11(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
       playwright: 1.62.1
       tinyrainbow: 3.1.0
-      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -4982,7 +4982,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
@@ -5058,7 +5058,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -5638,6 +5638,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.5
 
+  fdir@6.5.0(picomatch@4.0.7):
+    optionalDependencies:
+      picomatch: 4.0.7
+
   fflate@0.8.2: {}
 
   fill-range@7.1.1:
@@ -5764,7 +5768,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  happy-dom@20.11.15:
+  happy-dom@20.14.3:
     dependencies:
       '@types/node': 22.20.2
       '@types/whatwg-mimetype': 3.0.2
@@ -7130,8 +7134,8 @@ snapshots:
   vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0):
     dependencies:
       esbuild: 0.25.11
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.6
       rollup: 4.52.5
       tinyglobby: 0.2.17
@@ -7141,7 +7145,7 @@ snapshots:
       jiti: 2.6.1
       yaml: 2.9.0
 
-  vitest@4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.11.15)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0)):
+  vitest@4.1.11(@types/node@22.20.2)(@vitest/browser-playwright@4.1.11)(@vitest/ui@4.1.11)(happy-dom@20.14.3)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.11
       '@vitest/mocker': 4.1.11(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))
@@ -7167,7 +7171,7 @@ snapshots:
       '@types/node': 22.20.2
       '@vitest/browser-playwright': 4.1.11(playwright@1.62.1)(vite@7.1.10(@types/node@22.20.2)(jiti@2.6.1)(yaml@2.9.0))(vitest@4.1.11)
       '@vitest/ui': 4.1.11(vitest@4.1.11)
-      happy-dom: 20.11.15
+      happy-dom: 20.14.3
     transitivePeerDependencies:
       - msw
 
