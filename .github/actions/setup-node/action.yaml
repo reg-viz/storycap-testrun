@@ -1,8 +1,14 @@
 name: Setup Node
+description: Install pnpm and Node.js, then install workspace dependencies
 
 inputs:
   node-version:
-    required: true
+    description: Node.js version. Defaults to the version in .node-version
+    required: false
+  cache:
+    description: Whether to restore the pnpm store cache
+    required: false
+    default: 'true'
 
 runs:
   using: 'composite'
@@ -12,7 +18,9 @@ runs:
     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'pnpm'
+        # setup-node warns when both inputs are set, so pass the file only as a fallback
+        node-version-file: ${{ inputs.node-version == '' && '.node-version' || '' }}
+        cache: ${{ inputs.cache == 'true' && 'pnpm' || '' }}
 
     - shell: bash
       run: pnpm i --frozen-lockfile

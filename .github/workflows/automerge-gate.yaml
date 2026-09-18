@@ -5,9 +5,9 @@ on:
     types: [opened, synchronize, reopened, auto_merge_enabled]
 
 permissions:
-  checks: read
-  pull-requests: read
-  actions: read
+  checks: read # poll check runs on the PR head
+  pull-requests: read # read the PR head SHA
+  actions: read # exclude this workflow's own runs
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,8 +17,9 @@ jobs:
   gate:
     name: automerge-gate/all-passed
     runs-on: ubuntu-latest
-    # Must exceed the slowest CI job (test, including a cold Playwright
-    # install) so the aggregator does not fail on its own timeout while polling.
+    # Must exceed the slowest CI chain (test, including a cold Playwright
+    # install, then vrt) so the aggregator does not fail on its own timeout
+    # while polling.
     timeout-minutes: 20
     steps:
       - uses: pkgdeps/automerge-gate@cbf11cd35365922932ab22b36a646bbe02f7dae8 # v5.0.1
