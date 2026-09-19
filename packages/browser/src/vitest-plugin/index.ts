@@ -8,6 +8,12 @@ import {
   type ScreenshotViewportConfig,
 } from '@storycap-testrun/internal';
 import type { BrowserScreenshotContext } from '../context';
+import {
+  applyPinnedInsets,
+  computeChunkInsets,
+  restorePinnedElements,
+  setupPinnedElements,
+} from './pinned';
 
 export type ResolveScreenshotFilepathParams = [
   context: BrowserScreenshotContext,
@@ -181,6 +187,14 @@ async function captureFullPage(
   const chunks: string[] = [];
   const columns = Math.ceil(scrollSize.width / viewport.width);
 
+  // Elements pinned to the viewport would otherwise be painted into every chunk
+  // and appear once per chunk in the stitched image.
+  const pinned = await setupPinnedElements(
+    context.iframe,
+    viewport,
+    scrollSize,
+  );
+
   for (
     let scrollY = 0;
     scrollY < scrollSize.height;
@@ -203,6 +217,15 @@ async function captureFullPage(
           return { x: view?.scrollX ?? 0, y: view?.scrollY ?? 0 };
         },
         { x: scrollX, y: scrollY },
+      );
+
+      // Placement depends on where the page actually landed, so it happens
+      // after the scroll and before the clip is taken.
+      await applyPinnedInsets(
+        context.iframe,
+        pinned.facts.map((fact) =>
+          computeChunkInsets(fact, pinned.targets[fact.index]!, reached),
+        ),
       );
 
       const chunkW = Math.min(viewport.width, scrollSize.width - scrollX);
@@ -236,6 +259,9 @@ async function captureFullPage(
       chunks.push(Buffer.from(chunkBuf).toString('base64'));
     }
   }
+  // A failed chunk must not leave the story rewritten for the assertions that
+  // run after the capture.
+  await restorePinnedElements(context.iframe);
 
   // Stitch chunks using browser-native Canvas API (no external dependency)
   const mimeType = options.type === 'jpeg' ? 'image/jpeg' : 'image/png';
