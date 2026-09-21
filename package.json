@@ -30,7 +30,7 @@
     "@types/node": "22.20.2",
     "@vitest/ui": "5.0.0",
     "happy-dom": "20.14.3",
-    "lefthook": "2.1.12",
+    "lefthook": "2.1.14",
     "oxfmt": "0.67.0",
     "oxlint": "1.55.0",
     "oxlint-tsgolint": "7.0.2001",
