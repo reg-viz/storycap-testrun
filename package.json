@@ -29,7 +29,7 @@
     "@tsconfig/strictest": "2.0.8",
     "@types/node": "22.20.2",
     "@vitest/ui": "5.0.0",
-    "happy-dom": "20.14.3",
+    "happy-dom": "20.14.5",
     "lefthook": "2.1.12",
     "oxfmt": "0.67.0",
     "oxlint": "1.55.0",
