@@ -27,7 +27,7 @@
     "@changesets/cli": "3.0.2",
     "@tsconfig/node22": "22.0.6",
     "@tsconfig/strictest": "2.0.8",
-    "@types/node": "22.20.2",
+    "@types/node": "22.20.4",
     "@vitest/ui": "5.0.0",
     "happy-dom": "20.14.3",
     "lefthook": "2.1.12",
