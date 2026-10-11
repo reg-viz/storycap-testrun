@@ -1,5 +1,26 @@
 # @storycap-testrun/browser
 
+## 3.1.2
+
+### Patch Changes
+
+- [#344](https://github.com/reg-viz/storycap-testrun/pull/344) [`960bfdc`](https://github.com/reg-viz/storycap-testrun/commit/960bfdc219e9402c7fc2a2521a4c0cc40180850b) Thanks [@re-taro](https://github.com/re-taro)! - Size the tester iframe itself so viewport overrides apply under Vitest 5
+
+  `prepareCapture` resized the Playwright context and the iframe's wrapper
+  element to the capture viewport. Vitest 4 sized the tester iframe through that
+  wrapper, but Vitest 5 sets `width` / `height` on the iframe directly from the
+  `--viewport-width` / `--viewport-height` CSS variables on `body`, so the
+  wrapper no longer controls the iframe size. Under Vitest 5 a per-story
+  `viewport` override (and a plugin `viewport` larger than the Playwright
+  context) grew the context but left the iframe at the configured
+  `browser.viewport` size, cropping the capture to it.
+
+  Both the iframe and its wrapper are now sized for the capture and restored
+  afterwards. Captures taken with Vitest 4 are unchanged.
+
+- Updated dependencies []:
+  - @storycap-testrun/internal@3.1.2
+
 ## 3.1.1
 
 ### Patch Changes
