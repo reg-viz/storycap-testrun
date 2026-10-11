@@ -14,6 +14,7 @@ overrides:
   '@swc/core': 1.10.0
   jest-runtime@>=30.5.0: 30.4.2
   playwright-core: 1.63.0
+  '@storycap-testrun/internal': link:../../packages/internal
 
 importers:
 
