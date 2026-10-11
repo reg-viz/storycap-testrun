@@ -12,6 +12,10 @@ overrides:
   # serverRequire calls while @storybook/test-runner loads .storybook/test-runner.ts.
   'jest-runtime@>=30.5.0': 30.4.2
   playwright-core: 'catalog:'
+  # pnpm 12.8+ rejects a frozen install when a `file:` dependency has a
+  # `workspace:` dependency whose target is outside this workspace root.
+  # Spelling the link out keeps the same resolution and passes the check.
+  '@storycap-testrun/internal': 'link:../../packages/internal'
 
 allowBuilds:
   '@parcel/watcher': false
