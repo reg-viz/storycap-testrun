@@ -42,8 +42,13 @@ export type PrepareViewportResult = Promise<void>;
 export type RestoreViewportParams = [];
 export type RestoreViewportResult = Promise<void>;
 
+type FrameStyles = {
+  iframe: string;
+  wrapper: string | null;
+};
+
 type CaptureState = {
-  wrapperStyle: string | null;
+  frameStyles: FrameStyles | null;
   previousViewport: { width: number; height: number } | null;
 };
 
@@ -74,9 +79,13 @@ const resolveCaptureViewport = (
 
 /**
  * Prepares the iframe viewport for screenshot capture.
- * Sets the iframe wrapper to the configured viewport size with `transform: none`.
+ * Sizes the tester iframe to the configured viewport with `transform: none`.
  * Must be called before any hooks so that mask positions and user hooks
  * see the correct layout dimensions.
+ *
+ * Vitest 4 sizes the iframe through its wrapper element, while Vitest 5 sets
+ * `width`/`height` on the iframe itself from CSS variables, so both the iframe
+ * and its wrapper are sized here and restored afterwards.
  */
 const createPrepareViewport =
   (pluginViewport?: {
@@ -114,21 +123,27 @@ const createPrepareViewport =
     // Recorded before the wrapper is touched so a failure there still leaves
     // restoreViewport able to undo the resize.
     const state: CaptureState = {
-      wrapperStyle: null,
+      frameStyles: null,
       previousViewport: resized ? previousViewport : null,
     };
     captureStates.set(context.page, state);
 
-    state.wrapperStyle = await context.page.evaluate(
+    state.frameStyles = await context.page.evaluate(
       ({ w, h }) => {
         const iframe = document.querySelector(
           'iframe[data-vitest]',
         ) as HTMLIFrameElement | null;
-        const wrapper = iframe?.parentElement;
-        if (!wrapper) return null;
+        if (!iframe) return null;
 
-        const original = wrapper.style.cssText;
-        wrapper.style.cssText = `width: ${w}px; height: ${h}px; transform: none; transform-origin: left top;`;
+        const size = `width: ${w}px; height: ${h}px; transform: none; transform-origin: left top;`;
+        const original = {
+          iframe: iframe.style.cssText,
+          wrapper: iframe.parentElement?.style.cssText ?? null,
+        };
+        iframe.style.cssText = size;
+        if (iframe.parentElement) {
+          iframe.parentElement.style.cssText = size;
+        }
         return original;
       },
       { w: viewport.width, h: viewport.height },
@@ -136,7 +151,7 @@ const createPrepareViewport =
   };
 
 /**
- * Restores the iframe wrapper to its original state after screenshot capture.
+ * Restores the iframe and its wrapper to their original state after screenshot capture.
  */
 const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
   context,
@@ -148,15 +163,17 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
   captureStates.delete(context.page);
 
   try {
-    if (state.wrapperStyle != null) {
-      await context.page.evaluate((css) => {
+    if (state.frameStyles != null) {
+      await context.page.evaluate((styles) => {
         const iframe = document.querySelector(
           'iframe[data-vitest]',
         ) as HTMLIFrameElement | null;
-        if (iframe?.parentElement) {
-          iframe.parentElement.style.cssText = css;
+        if (!iframe) return;
+        iframe.style.cssText = styles.iframe;
+        if (iframe.parentElement && styles.wrapper != null) {
+          iframe.parentElement.style.cssText = styles.wrapper;
         }
-      }, state.wrapperStyle);
+      }, state.frameStyles);
     }
   } finally {
     // The state is already gone from the map, so a failure above would
