@@ -111,6 +111,36 @@ describe('__storycap_prepareViewport', () => {
     });
   });
 
+  test('leaves the iframe alone when it already matches the resolved viewport', async () => {
+    const commands = getCommands({
+      viewport: { width: 1366, height: 600 },
+    });
+    const context = createMockContext({ width: 1366, height: 600 });
+
+    await commands.__storycap_prepareViewport(context);
+
+    // Rewriting the iframe inline style re-rasterizes its content and changes
+    // image resampling, so an iframe that already has the capture size is not touched.
+    const [fn, args] = context.page.evaluate.mock.calls[0];
+    const wrapper = { style: { cssText: 'wrapper-original' } };
+    const iframe = {
+      style: { cssText: 'iframe-original' },
+      parentElement: wrapper,
+      offsetWidth: 1366,
+      offsetHeight: 600,
+    };
+    vi.stubGlobal('document', { querySelector: vi.fn(() => iframe) });
+    try {
+      expect(fn(args)).toEqual({ iframe: null, wrapper: 'wrapper-original' });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(iframe.style.cssText).toBe('iframe-original');
+    expect(wrapper.style.cssText).toBe(
+      'width: 1366px; height: 600px; transform: none; transform-origin: left top;',
+    );
+  });
+
   test('sizes the iframe and its wrapper to the resolved viewport', async () => {
     const commands = getCommands({
       viewport: { width: 1366, height: 600 },
@@ -125,12 +155,15 @@ describe('__storycap_prepareViewport', () => {
     });
 
     // Vitest 5 sizes the iframe itself via CSS variables, Vitest 4 sizes the
-    // wrapper, so the in-page function has to set both and report both originals.
+    // wrapper, so the in-page function has to set both and report both originals
+    // when the iframe still does not match the capture size.
     const [fn, args] = context.page.evaluate.mock.calls[0];
     const wrapper = { style: { cssText: 'wrapper-original' } };
     const iframe = {
       style: { cssText: 'iframe-original' },
       parentElement: wrapper,
+      offsetWidth: 1366,
+      offsetHeight: 600,
     };
     vi.stubGlobal('document', { querySelector: vi.fn(() => iframe) });
     try {
@@ -172,5 +205,18 @@ describe('__storycap_prepareViewport', () => {
     }
     expect(iframe.style.cssText).toBe('iframe-style');
     expect(wrapper.style.cssText).toBe('wrapper-style');
+
+    const untouched = {
+      style: { cssText: 'sized' },
+      parentElement: { style: { cssText: 'sized' } },
+    };
+    vi.stubGlobal('document', { querySelector: vi.fn(() => untouched) });
+    try {
+      fn({ iframe: null, wrapper: 'wrapper-style' });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(untouched.style.cssText).toBe('sized');
+    expect(untouched.parentElement.style.cssText).toBe('wrapper-style');
   });
 });

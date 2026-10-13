@@ -43,7 +43,7 @@ export type RestoreViewportParams = [];
 export type RestoreViewportResult = Promise<void>;
 
 type FrameStyles = {
-  iframe: string;
+  iframe: string | null;
   wrapper: string | null;
 };
 
@@ -84,8 +84,11 @@ const resolveCaptureViewport = (
  * see the correct layout dimensions.
  *
  * Vitest 4 sizes the iframe through its wrapper element, while Vitest 5 sets
- * `width`/`height` on the iframe itself from CSS variables, so both the iframe
- * and its wrapper are sized here and restored afterwards.
+ * `width`/`height` on the iframe itself from CSS variables. The wrapper is
+ * always sized; the iframe is only touched when it still does not match the
+ * capture size afterwards. Rewriting the iframe's inline style forces Chromium
+ * to re-rasterize its content and changes image resampling in the capture, so
+ * stories that already fit the viewport must leave it alone.
  */
 const createPrepareViewport =
   (pluginViewport?: {
@@ -136,13 +139,16 @@ const createPrepareViewport =
         if (!iframe) return null;
 
         const size = `width: ${w}px; height: ${h}px; transform: none; transform-origin: left top;`;
-        const original = {
-          iframe: iframe.style.cssText,
+        const original: { iframe: string | null; wrapper: string | null } = {
+          iframe: null,
           wrapper: iframe.parentElement?.style.cssText ?? null,
         };
-        iframe.style.cssText = size;
         if (iframe.parentElement) {
           iframe.parentElement.style.cssText = size;
+        }
+        if (iframe.offsetWidth !== w || iframe.offsetHeight !== h) {
+          original.iframe = iframe.style.cssText;
+          iframe.style.cssText = size;
         }
         return original;
       },
@@ -169,7 +175,9 @@ const restoreViewport: BrowserCommand<RestoreViewportParams> = async (
           'iframe[data-vitest]',
         ) as HTMLIFrameElement | null;
         if (!iframe) return;
-        iframe.style.cssText = styles.iframe;
+        if (styles.iframe != null) {
+          iframe.style.cssText = styles.iframe;
+        }
         if (iframe.parentElement && styles.wrapper != null) {
           iframe.parentElement.style.cssText = styles.wrapper;
         }
