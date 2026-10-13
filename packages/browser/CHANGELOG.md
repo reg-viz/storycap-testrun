@@ -1,5 +1,26 @@
 # @storycap-testrun/browser
 
+## 3.1.3
+
+### Patch Changes
+
+- [#351](https://github.com/reg-viz/storycap-testrun/pull/351) [`b07db94`](https://github.com/reg-viz/storycap-testrun/commit/b07db947042aebe2d030032af2175dbb8dfacc65) Thanks [@re-taro](https://github.com/re-taro)! - Only rewrite the tester iframe's inline style when its size has to change
+
+  3.1.2 started sizing the tester iframe itself for every capture so that per-story
+  `viewport` overrides apply under Vitest 5. Rewriting the iframe's inline style,
+  even to the size it already has, makes Chromium re-rasterize the frame and
+  changes how images are resampled in the capture: photos and raster icons came
+  out with pixel-level noise compared to 3.1.1 and failed visual regression
+  comparisons for every story that contains one.
+
+  The wrapper is still sized as before, and the iframe is now only touched when
+  its rendered size still differs from the capture size afterwards, i.e. for
+  stories with a viewport override under Vitest 5. Stories without an override
+  capture exactly as they did with 3.1.1 again.
+
+- Updated dependencies []:
+  - @storycap-testrun/internal@3.1.3
+
 ## 3.1.2
 
 ### Patch Changes
