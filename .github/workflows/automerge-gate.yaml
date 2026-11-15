@@ -22,6 +22,6 @@ jobs:
     # while polling.
     timeout-minutes: 20
     steps:
-      - uses: pkgdeps/automerge-gate@cbf11cd35365922932ab22b36a646bbe02f7dae8 # v5.0.1
+      - uses: pkgdeps/automerge-gate@v5.0.1
         with:
           gate-mode: 'public'

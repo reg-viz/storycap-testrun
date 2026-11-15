@@ -1,0 +1,5 @@
+rules:
+  # actions.lock covers these, but zizmor 1.32 does not read it for composite actions.
+  unpinned-uses:
+    ignore:
+      - action.yaml

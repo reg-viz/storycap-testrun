@@ -21,13 +21,15 @@ jobs:
     permissions:
       contents: read # checkout
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
         with:
-          args: -color
+          # actionlint 1.7.12 rejects the `uses: $/...` form that actions.lock needs
+          # to follow setup-node; ignore only that error.
+          args: -color -ignore=[$]/[.]github/actions/
 
   zizmor:
     name: zizmor
@@ -36,16 +38,34 @@ jobs:
     permissions:
       contents: read # checkout
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+      - uses: zizmorcore/zizmor-action@v0.8.1
         with:
           # Fail on findings instead of uploading SARIF to code scanning.
           advanced-security: false
           annotations: true
           # A new zizmor release can add audits; pin so unrelated PRs do not turn red.
-          # 1.30 adds self-repository, which asks for `uses: $/...`, and actionlint
-          # 1.7.12 rejects that syntax.
-          version: 1.29.0
+          # Releases before 1.32 do not read actions.lock and flag every tag ref.
+          version: 1.32.0
+
+  actions-lock:
+    name: actions-lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # checkout and read the actions the lockfile records
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - run: gh extension install github/gh-actions-lock --pin v0.4.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - run: gh actions-lock --verify
+        env:
+          GH_TOKEN: ${{ github.token }}
