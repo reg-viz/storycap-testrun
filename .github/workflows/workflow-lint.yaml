@@ -27,7 +27,9 @@ jobs:
 
       - uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
         with:
-          args: -color
+          # actionlint 1.7.12 rejects the `uses: $/...` form that actions.lock needs
+          # to follow setup-node; ignore only that error.
+          args: -color -ignore=[$]/[.]github/actions/
 
   zizmor:
     name: zizmor
@@ -40,7 +42,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: zizmorcore/zizmor-action@v0.6.4
+      - uses: zizmorcore/zizmor-action@v0.8.1
         with:
           # Fail on findings instead of uploading SARIF to code scanning.
           advanced-security: false
@@ -64,8 +66,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # setup-node stays a `./` action because actionlint rejects `uses: $/...`,
-      # so the lockfile cannot follow it and its own uses: keep commit SHAs.
-      - run: gh actions-lock --verify --ignore-local-actions
+      - run: gh actions-lock --verify
         env:
           GH_TOKEN: ${{ github.token }}
