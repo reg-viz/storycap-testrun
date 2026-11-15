@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read # checkout
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -37,7 +37,7 @@ jobs:
     permissions:
       contents: read # checkout
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -57,7 +57,7 @@ jobs:
       matrix:
         node: [22, 24]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -69,7 +69,7 @@ jobs:
 
       - name: Cache Playwright browsers
         id: cache-playwright
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-browsers-${{ hashFiles('pnpm-lock.yaml') }}
@@ -82,7 +82,7 @@ jobs:
       - run: pnpm test
 
       - name: Upload Screenshots
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7.0.1
         if: always() && matrix.node == 22
         with:
           name: component-screenshots
@@ -102,17 +102,17 @@ jobs:
       pull-requests: write # post and minimize report comments
     steps:
       # reg-actions runs git fetch and merge-base in the workspace to find the base commit.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8.0.1
         with:
           name: component-screenshots
           path: __screenshots__
 
       # v3 is a branch, not a tag: reg-actions publishes no releases.
-      - uses: reg-viz/reg-actions@f0cccbcab7e7ecf9b0434b719f1e842c97bcd2a7 # v3
+      - uses: reg-viz/reg-actions@v3
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           image-directory-path: './__screenshots__'
@@ -137,7 +137,7 @@ jobs:
       contents: read # checkout; repository writes use the App token
       id-token: write # npm trusted publishing with provenance
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -150,7 +150,7 @@ jobs:
 
       # A GITHUB_TOKEN-created release PR needs manual approval before its workflows run.
       # Minted last so dependency install and build scripts never run while it is live.
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      - uses: actions/create-github-app-token@v3.2.0
         id: app-token
         with:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
@@ -159,7 +159,7 @@ jobs:
           permission-pull-requests: write
 
       - name: Create Release Pull Request
-        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        uses: changesets/action@v2.1.2
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           publish-script: pnpm release
