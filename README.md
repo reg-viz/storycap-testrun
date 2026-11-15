@@ -79,6 +79,8 @@ Choose the right package based on your current Storybook testing setup:
 | **@storybook/addon-vitest** | [`@storycap-testrun/browser`](./packages/browser) |
 | **@storybook/test-runner**  | [`@storycap-testrun/node`](./packages/node)       |
 
+`@storybook/test-runner` does not run on Storybook 11, so neither does `@storycap-testrun/node`. On Storybook 11, use `@storycap-testrun/browser`.
+
 **Not sure which testing framework you're using?**
 
 - If you run tests with `vitest` command → Use **browser** package

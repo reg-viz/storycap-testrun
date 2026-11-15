@@ -59,6 +59,9 @@ This makes it ideal for teams who need more than basic screenshots - providing t
 
 - Vitest browser mode with Playwright provider
 - `@storybook/addon-vitest` setup
+- `browser.api.allowWrite` and `browser.api.allowExec` set to `true` in the Vitest project config
+  - Storybook 9.1.21, 10.6.2, 11.0.0-alpha.6 and later turn both off by default ([GHSA-px85-f4q5-jh77](https://github.com/storybookjs/storybook/security/advisories/GHSA-px85-f4q5-jh77)), and Vitest refuses the CDP session that the stability metrics use without both. Without them every capture fails with `Cannot use CDP because browser API write or exec operations are disabled`.
+  - With both on, anything that can connect to the Vitest browser server can write files and use CDP. Keep that server on localhost (do not point `browser.api.host` or Vite's `server.host` at a network address), and set the two flags only on the projects that use storycap, not in the root config. Setting them explicitly also overrides Vitest's own default, which turns both off when `browser.api.host` exposes the server to the network.
 
 ### Limitations
 
@@ -120,6 +123,9 @@ export default defineConfig({
             provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
+            // Required with Storybook 9.1.21, 10.6.2, 11.0.0-alpha.6 and later.
+            // Keep `browser.api.host` unset (localhost only), see Requirements.
+            api: { allowWrite: true, allowExec: true },
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },

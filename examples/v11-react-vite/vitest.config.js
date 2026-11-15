@@ -50,6 +50,10 @@ const project = ({ name, viewport, dir, contextOptions }) =>
           contextOptions == null ? undefined : { contextOptions },
         ),
         headless: true,
+        // addon-vitest turns both off unless set here (Storybook 9.1.21,
+        // 10.6.2, 11.0.0-alpha.6 and later), and Vitest refuses CDP sessions,
+        // which storycap uses for the stability metrics, without both.
+        api: { allowWrite: true, allowExec: true },
         instances: [{ browser: 'chromium' }],
       },
       setupFiles: ['./.storybook/vitest.setup.ts'],
