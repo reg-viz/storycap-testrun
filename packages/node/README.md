@@ -35,6 +35,8 @@ This ensures reliable visual regression testing without the common issues of tim
 
 ### Limitations
 
+- **Not usable with Storybook 11**
+  - Official support for [@storybook/test-runner][storybook-test-runner] ended with Storybook 11, and from `11.0.0-alpha.2` on it fails at startup with `previewConfig.getFieldValue is not a function`. On Storybook 11, use [`@storycap-testrun/browser`](https://github.com/reg-viz/storycap-testrun/tree/main/packages/browser) with `@storybook/addon-vitest`.
 - **Single viewport per test run**
   - A limitation of [@storybook/test-runner](storybook-test-runner). It can be addressed by running tests in multiple Viewports as needed
 - **No pseudo-state variants** (`:hover`, `:focus`, etc.)
