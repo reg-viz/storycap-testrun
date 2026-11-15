@@ -7,13 +7,13 @@ settings:
 catalogs:
   default:
     playwright:
-      specifier: 1.63.0
-      version: 1.63.0
+      specifier: 1.65.0
+      version: 1.65.0
 
 overrides:
   '@swc/core': 1.10.0
   jest-runtime@>=30.5.0: 30.4.2
-  playwright-core: 1.63.0
+  playwright-core: 1.65.0
   '@storycap-testrun/internal': link:../../packages/internal
 
 importers:
@@ -34,7 +34,7 @@ importers:
         version: 0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1)
       '@storycap-testrun/node':
         specifier: file:../../packages/node
-        version: file:../../packages/node(@storybook/test-runner@0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1))(playwright@1.63.0)
+        version: file:../../packages/node(@storybook/test-runner@0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1))(playwright@1.65.0)
       concurrently:
         specifier: ^9.1.2
         version: 9.2.4
@@ -43,7 +43,7 @@ importers:
         version: 14.1.1(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       playwright:
         specifier: 'catalog:'
-        version: 1.63.0
+        version: 1.65.0
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -2931,13 +2931,13 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  playwright-core@1.63.0:
-    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+  playwright-core@1.65.0:
+    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.63.0:
-    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+  playwright@1.65.0:
+    resolution: {integrity: sha512-F3AMWcR44qMBt4kq+6Kb6mX7bjGXshktKFOPULd7reED6ZJWevjbNRqysP7q+AATE9kdPEZBibex1BYsvpVoeA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -4597,8 +4597,8 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 3.0.1(jest@30.5.1(@types/node@26.6.1)(supports-color@8.1.1))
       nyc: 15.1.0(supports-color@8.1.1)
-      playwright: 1.63.0
-      playwright-core: 1.63.0
+      playwright: 1.65.0
+      playwright-core: 1.65.0
       rimraf: 3.0.2
       storybook: 11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1)
       uuid: 8.3.2
@@ -4612,11 +4612,11 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@storycap-testrun/node@file:../../packages/node(@storybook/test-runner@0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1))(playwright@1.63.0)':
+  '@storycap-testrun/node@file:../../packages/node(@storybook/test-runner@0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1))(playwright@1.65.0)':
     dependencies:
       '@storybook/test-runner': 0.24.5(@types/node@26.6.1)(debug@4.4.3(supports-color@8.1.1))(storybook@11.0.0-alpha.0(@types/react@19.3.0)(react@18.3.1))(supports-color@8.1.1)
       '@storycap-testrun/internal': link:../../packages/internal
-      playwright: 1.63.0
+      playwright: 1.65.0
 
   '@swc/core-darwin-arm64@1.10.0':
     optional: true
@@ -6536,11 +6536,11 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.63.0: {}
+  playwright-core@1.65.0: {}
 
-  playwright@1.63.0:
+  playwright@1.65.0:
     dependencies:
-      playwright-core: 1.63.0
+      playwright-core: 1.65.0
 
   portfinder@1.0.38(supports-color@8.1.1):
     dependencies:
