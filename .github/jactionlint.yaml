@@ -1,0 +1,2 @@
+# The checks of actionlint; the zizmor job runs the security audits.
+profile: correctness

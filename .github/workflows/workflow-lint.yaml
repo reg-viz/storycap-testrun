@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  actionlint:
-    name: actionlint
+  jactionlint:
+    name: jactionlint
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -25,11 +25,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+      - uses: docker://ghcr.io/jdx/jactionlint:2.6.0@sha256:323474d5999ac01a4712d99a8c21d245b62f79977a1e9cc8795f321142a087d7
         with:
-          # actionlint 1.7.12 rejects the `uses: $/...` form that actions.lock needs
-          # to follow setup-node; ignore only that error.
-          args: -color -ignore=[$]/[.]github/actions/
+          args: --color
 
   zizmor:
     name: zizmor

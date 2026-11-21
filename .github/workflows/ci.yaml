@@ -11,7 +11,7 @@ concurrency:
   # Pushes are keyed by SHA so that every main commit completes and uploads
   # the reg artifact that later PRs use as their visual regression baseline.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
