@@ -7,7 +7,7 @@ import type { BrowserScreenshotHook } from './types';
 export const createMaskingHook = (
   config: ScreenshotMaskConfig,
 ): BrowserScreenshotHook => ({
-  async preCapture(_) {
+  async preCapture() {
     const selector = config.selector;
     const color = config.color;
 
@@ -27,7 +27,7 @@ export const createMaskingHook = (
     });
   },
 
-  postCapture: async (_) => {
+  postCapture: async () => {
     document.querySelectorAll('x-storycap-mask').forEach((el) => {
       el.remove();
     });

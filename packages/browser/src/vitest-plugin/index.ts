@@ -1,12 +1,12 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
-import type { Plugin } from 'vitest/config';
 import {
   resolveScreenshotFilename,
   type ScreenshotOutputOptions,
   type ScreenshotViewportConfig,
 } from '@storycap-testrun/internal';
+import type { Plugin } from 'vitest/config';
+import type { BrowserCommand, BrowserCommandContext } from 'vitest/node';
 import type { BrowserScreenshotContext } from '../context';
 
 export type ResolveScreenshotFilepathParams = [

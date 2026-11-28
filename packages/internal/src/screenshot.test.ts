@@ -1,4 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
+import type { ScreenshotContext } from './context';
+import { RetakeExceededError } from './error';
+import type { ScreenshotHook } from './hook';
 import {
   resolveScreenshotOptions,
   resolveScreenshotFilename,
@@ -7,8 +10,10 @@ import {
   type ScreenshotOptions,
   type ScreenshotAdapter,
 } from './screenshot';
-import { RetakeExceededError } from './error';
-import type { ScreenshotContext } from './context';
+
+type SetupHook = NonNullable<
+  ScreenshotHook<unknown, ScreenshotContext>['setup']
+>;
 
 describe('resolveScreenshotOptions', () => {
   test.each([
@@ -24,7 +29,7 @@ describe('resolveScreenshotOptions', () => {
       },
     },
     {
-      input: { hooks: [{ setup: vi.fn() }] },
+      input: { hooks: [{ setup: vi.fn<SetupHook>() }] },
       expected: {
         flakiness: {
           metrics: { enabled: true, retries: 1000 },
@@ -82,7 +87,9 @@ describe('resolveScreenshotFilename', () => {
   });
 
   test('should call function filename with context', () => {
-    const fileFn = vi.fn().mockReturnValue('custom-filename.png');
+    const fileFn = vi
+      .fn<(context: ScreenshotContext) => string>()
+      .mockReturnValue('custom-filename.png');
     const output = { dir: '/test', file: fileFn };
     const result = resolveScreenshotFilename(output, mockContext);
 
@@ -179,35 +186,54 @@ describe('createScreenshotFunction', () => {
   type MockPage = { id: string };
   type MockTestContext = { testId: string };
   type MockScreenshotContext = ScreenshotContext & { testId: string };
-
-  let mockAdapter: ScreenshotAdapter<
+  type Adapter = ScreenshotAdapter<
     MockPage,
     MockTestContext,
     MockScreenshotContext
   >;
+  type Hook = ScreenshotHook<MockPage, MockScreenshotContext>;
+  type SetupHook = NonNullable<Hook['setup']>;
+
+  let mockAdapter: Adapter;
 
   beforeEach(() => {
     mockAdapter = {
-      createContext: vi.fn().mockReturnValue({
+      createContext: vi.fn<Adapter['createContext']>().mockReturnValue({
         id: 'test-id',
         name: 'test-name',
         testId: 'context-test',
       }),
-      getParameters: vi.fn().mockResolvedValue({}),
-      resolveFilepath: vi.fn().mockResolvedValue('/test/screenshot.png'),
-      createHash: vi.fn().mockResolvedValue('stable-hash'),
-      waitForStable: vi.fn().mockResolvedValue(undefined),
-      takeScreenshot: vi.fn().mockResolvedValue('screenshot-data'),
-      createAnimationsHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
-      createRemovalHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
-      createMaskingHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+      getParameters: vi.fn<Adapter['getParameters']>().mockResolvedValue({}),
+      resolveFilepath: vi
+        .fn<Adapter['resolveFilepath']>()
+        .mockResolvedValue('/test/screenshot.png'),
+      createHash: vi
+        .fn<Adapter['createHash']>()
+        .mockResolvedValue('stable-hash'),
+      waitForStable: vi
+        .fn<Adapter['waitForStable']>()
+        .mockResolvedValue(undefined),
+      takeScreenshot: vi
+        .fn<Adapter['takeScreenshot']>()
+        .mockResolvedValue('screenshot-data'),
+      createAnimationsHook: vi
+        .fn<Adapter['createAnimationsHook']>()
+        .mockReturnValue({ setup: vi.fn<SetupHook>() }),
+      createRemovalHook: vi
+        .fn<Adapter['createRemovalHook']>()
+        .mockReturnValue({ setup: vi.fn<SetupHook>() }),
+      createMaskingHook: vi
+        .fn<Adapter['createMaskingHook']>()
+        .mockReturnValue({ setup: vi.fn<SetupHook>() }),
     };
   });
 
   test('should run cleanupCapture when prepareCapture rejects', async () => {
-    const cleanupCapture = vi.fn().mockResolvedValue(undefined);
+    const cleanupCapture = vi
+      .fn<NonNullable<Adapter['cleanupCapture']>>()
+      .mockResolvedValue(undefined);
     mockAdapter.prepareCapture = vi
-      .fn()
+      .fn<NonNullable<Adapter['prepareCapture']>>()
       .mockRejectedValue(new Error('prepare failed'));
     mockAdapter.cleanupCapture = cleanupCapture;
 
@@ -223,7 +249,9 @@ describe('createScreenshotFunction', () => {
   });
 
   test('should skip screenshot when parameters.skip is true', async () => {
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ skip: true });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ skip: true });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };
@@ -258,7 +286,7 @@ describe('createScreenshotFunction', () => {
 
   test('should add removal hook when remove parameter is provided', async () => {
     mockAdapter.getParameters = vi
-      .fn()
+      .fn<NonNullable<Adapter['getParameters']>>()
       .mockResolvedValue({ remove: '.selector' });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
@@ -272,7 +300,9 @@ describe('createScreenshotFunction', () => {
 
   test('should add masking hook when mask parameter is provided', async () => {
     const maskConfig = { selector: '.mask', color: '#ff0000' };
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ mask: maskConfig });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ mask: maskConfig });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };
@@ -285,7 +315,7 @@ describe('createScreenshotFunction', () => {
 
   test('should determine JPEG type from file extension', async () => {
     mockAdapter.resolveFilepath = vi
-      .fn()
+      .fn<NonNullable<Adapter['resolveFilepath']>>()
       .mockResolvedValue('/test/screenshot.jpg');
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
@@ -302,7 +332,9 @@ describe('createScreenshotFunction', () => {
   });
 
   test('should override global fullPage with per-story fullPage: false', async () => {
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ fullPage: false });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ fullPage: false });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };
@@ -318,7 +350,9 @@ describe('createScreenshotFunction', () => {
   });
 
   test('should override global scale with per-story scale: css', async () => {
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ scale: 'css' });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ scale: 'css' });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };
@@ -334,7 +368,9 @@ describe('createScreenshotFunction', () => {
   });
 
   test('should use global defaults when per-story params are null', async () => {
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ fullPage: null });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ fullPage: null });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };
@@ -372,7 +408,9 @@ describe('createScreenshotFunction', () => {
   });
 
   test('should apply delay when specified', async () => {
-    mockAdapter.getParameters = vi.fn().mockResolvedValue({ delay: 100 });
+    mockAdapter.getParameters = vi
+      .fn<NonNullable<Adapter['getParameters']>>()
+      .mockResolvedValue({ delay: 100 });
 
     const screenshotFn = createScreenshotFunction(mockAdapter);
     const mockPage = { id: 'page-1' };

@@ -1,42 +1,61 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { createNodeScreenshotAdapter } from './screenshot';
-import type { Page } from 'playwright';
+import type { join } from 'node:path';
 import type { TestContext } from '@storybook/test-runner';
+import type { Page } from 'playwright';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
+import type { createAnimationsHook } from './hooks/animation';
+import type { createMaskingHook } from './hooks/masking';
+import type { createRemovalHook } from './hooks/removal';
+import type { NodeScreenshotHook } from './hooks/types';
+import { createNodeScreenshotAdapter } from './screenshot';
+import type { waitForStable } from './wait-for-stable';
+
+type SetupHook = NonNullable<NodeScreenshotHook['setup']>;
+type MockHash = { update: (data: string) => MockHash; digest: () => string };
 
 // Mock the dependencies
 vi.mock('@storybook/test-runner', () => ({
-  getStoryContext: vi.fn().mockResolvedValue({
-    parameters: {
-      screenshot: { delay: 200 },
-    },
-  }),
+  getStoryContext: vi
+    .fn<() => Promise<{ parameters: Record<string, unknown> }>>()
+    .mockResolvedValue({
+      parameters: {
+        screenshot: { delay: 200 },
+      },
+    }),
 }));
 
 vi.mock('./hooks/animation', () => ({
-  createAnimationsHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createAnimationsHook: vi
+    .fn<typeof createAnimationsHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./hooks/removal', () => ({
-  createRemovalHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createRemovalHook: vi
+    .fn<typeof createRemovalHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./hooks/masking', () => ({
-  createMaskingHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createMaskingHook: vi
+    .fn<typeof createMaskingHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./wait-for-stable', () => ({
-  waitForStable: vi.fn().mockResolvedValue(undefined),
+  waitForStable: vi.fn<typeof waitForStable>().mockResolvedValue(undefined),
 }));
 
 vi.mock('node:crypto', () => ({
-  createHash: vi.fn().mockImplementation(() => ({
-    update: vi.fn().mockReturnThis(),
-    digest: vi.fn().mockReturnValue('sha256hash'),
-  })),
+  createHash: vi
+    .fn<(algorithm: string) => MockHash>()
+    .mockImplementation(() => ({
+      update: vi.fn<MockHash['update']>().mockReturnThis(),
+      digest: vi.fn<MockHash['digest']>().mockReturnValue('sha256hash'),
+    })),
 }));
 
 vi.mock('node:path', () => ({
-  join: vi.fn().mockImplementation((...args) => args.join('/')),
+  join: vi.fn<typeof join>().mockImplementation((...args) => args.join('/')),
 }));
 
 describe('createNodeScreenshotAdapter', () => {
@@ -48,7 +67,9 @@ describe('createNodeScreenshotAdapter', () => {
     vi.clearAllMocks();
 
     mockPage = {
-      screenshot: vi.fn().mockResolvedValue(Buffer.from('screenshot-data')),
+      screenshot: vi
+        .fn<Page['screenshot']>()
+        .mockResolvedValue(Buffer.from('screenshot-data')),
     } as any;
 
     mockContext = {

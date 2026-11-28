@@ -1,6 +1,6 @@
 import { screenshot } from '@storycap-testrun/browser';
-import { page } from 'vitest/browser';
 import { afterEach, beforeEach } from 'vitest';
+import { page } from 'vitest/browser';
 
 beforeEach(async () => {
   await page.viewport(1280, 720);

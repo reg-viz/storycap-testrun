@@ -81,7 +81,7 @@ Multi-layer approach:
 - **Test environment**: happy-dom for browser package, Node for others
 - **Vitest globals**: `globals: true` — `describe`, `test`, `expect`, `vi` etc. are available without import
 - **Type imports**: Use `import type` for type-only imports (`consistent-type-imports` enforced)
-- **Import order**: Alphabetical, no blank lines between groups (`import/order` enforced)
+- **Import order**: Sorted by oxfmt `sortImports` — builtin, external, internal, then relative imports, alphabetical, no blank lines between groups (`pnpm format` fixes it)
 - **Pre-commit hooks**: lefthook runs oxfmt and oxlint on staged files automatically
 
 ## Examples

@@ -1,4 +1,15 @@
+import {
+  createScreenshotFunction,
+  type ScreenshotAdapter,
+} from '@storycap-testrun/internal';
 import type { TestContext } from 'vitest';
+import type { BrowserPage } from 'vitest/browser';
+import { commands } from 'vitest/browser';
+import type { BrowserScreenshotContext } from './context';
+import { createAnimationsHook } from './hooks/animation';
+import { createMaskingHook } from './hooks/masking';
+import { createRemovalHook } from './hooks/removal';
+import type { BrowserScreenshotOptions } from './options';
 import type {
   PrepareViewportParams,
   PrepareViewportResult,
@@ -9,17 +20,6 @@ import type {
   TakeScreenshotParams,
   TakeScreenshotResult,
 } from './vitest-plugin';
-import type { BrowserPage } from 'vitest/browser';
-import { commands } from 'vitest/browser';
-import type { BrowserScreenshotOptions } from './options';
-import {
-  createScreenshotFunction,
-  type ScreenshotAdapter,
-} from '@storycap-testrun/internal';
-import type { BrowserScreenshotContext } from './context';
-import { createAnimationsHook } from './hooks/animation';
-import { createRemovalHook } from './hooks/removal';
-import { createMaskingHook } from './hooks/masking';
 import { waitForStable } from './wait-for-stable';
 
 declare module 'vitest/browser' {

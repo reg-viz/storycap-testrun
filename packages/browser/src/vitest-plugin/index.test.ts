@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import storycap from './index';
 
 type Viewport = { width: number; height: number };
+type Styles = { iframe: string; wrapper: string };
 
 const getCommands = (options?: Parameters<typeof storycap>[0]) => {
   const plugin = storycap(options) as any;
@@ -11,14 +12,18 @@ const getCommands = (options?: Parameters<typeof storycap>[0]) => {
 const createMockContext = (initialViewport: Viewport | null) => {
   let current = initialViewport;
   const page = {
-    viewportSize: vi.fn(() => current),
-    setViewportSize: vi.fn(async (viewport: Viewport) => {
-      current = viewport;
-    }),
-    evaluate: vi.fn(async () => ({
-      iframe: 'iframe-style',
-      wrapper: 'wrapper-style',
-    })),
+    viewportSize: vi.fn<() => Viewport | null>(() => current),
+    setViewportSize: vi.fn<(viewport: Viewport) => Promise<void>>(
+      async (viewport: Viewport) => {
+        current = viewport;
+      },
+    ),
+    evaluate: vi.fn<(fn: unknown, arg?: unknown) => Promise<Styles>>(
+      async () => ({
+        iframe: 'iframe-style',
+        wrapper: 'wrapper-style',
+      }),
+    ),
   };
   return { page } as any;
 };
@@ -129,7 +134,9 @@ describe('__storycap_prepareViewport', () => {
       offsetWidth: 1366,
       offsetHeight: 600,
     };
-    vi.stubGlobal('document', { querySelector: vi.fn(() => iframe) });
+    vi.stubGlobal('document', {
+      querySelector: vi.fn<() => typeof iframe>(() => iframe),
+    });
     try {
       expect(fn(args)).toEqual({ iframe: null, wrapper: 'wrapper-original' });
     } finally {
@@ -165,7 +172,9 @@ describe('__storycap_prepareViewport', () => {
       offsetWidth: 1366,
       offsetHeight: 600,
     };
-    vi.stubGlobal('document', { querySelector: vi.fn(() => iframe) });
+    vi.stubGlobal('document', {
+      querySelector: vi.fn<() => typeof iframe>(() => iframe),
+    });
     try {
       expect(fn(args)).toEqual({
         iframe: 'iframe-original',
@@ -197,7 +206,9 @@ describe('__storycap_prepareViewport', () => {
 
     const wrapper = { style: { cssText: 'sized' } };
     const iframe = { style: { cssText: 'sized' }, parentElement: wrapper };
-    vi.stubGlobal('document', { querySelector: vi.fn(() => iframe) });
+    vi.stubGlobal('document', {
+      querySelector: vi.fn<() => typeof iframe>(() => iframe),
+    });
     try {
       fn(styles);
     } finally {
@@ -210,7 +221,9 @@ describe('__storycap_prepareViewport', () => {
       style: { cssText: 'sized' },
       parentElement: { style: { cssText: 'sized' } },
     };
-    vi.stubGlobal('document', { querySelector: vi.fn(() => untouched) });
+    vi.stubGlobal('document', {
+      querySelector: vi.fn<() => typeof untouched>(() => untouched),
+    });
     try {
       fn({ iframe: null, wrapper: 'wrapper-style' });
     } finally {

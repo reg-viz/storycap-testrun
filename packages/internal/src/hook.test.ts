@@ -1,10 +1,14 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { createHookProcessor, type ScreenshotHook } from './hook';
 import type { ScreenshotContext } from './context';
+import { createHookProcessor, type ScreenshotHook } from './hook';
 
 describe('createHookProcessor', () => {
   type MockPage = { id: string };
   type MockContext = ScreenshotContext;
+  type Hook = ScreenshotHook<MockPage, MockContext>;
+  type SetupHook = NonNullable<Hook['setup']>;
+  type PreCaptureHook = NonNullable<Hook['preCapture']>;
+  type PostCaptureHook = NonNullable<Hook['postCapture']>;
 
   let mockPage: MockPage;
   let mockContext: MockContext;
@@ -16,10 +20,22 @@ describe('createHookProcessor', () => {
 
   test('should execute all hooks in sequence for setup', async () => {
     const setupOrder: number[] = [];
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
-      { setup: vi.fn().mockImplementation(() => setupOrder.push(1)) },
-      { setup: vi.fn().mockImplementation(() => setupOrder.push(2)) },
-      { setup: vi.fn().mockImplementation(() => setupOrder.push(3)) },
+    const hooks: Hook[] = [
+      {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
+          setupOrder.push(1);
+        }),
+      },
+      {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
+          setupOrder.push(2);
+        }),
+      },
+      {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
+          setupOrder.push(3);
+        }),
+      },
     ];
 
     const processor = createHookProcessor(hooks);
@@ -33,10 +49,22 @@ describe('createHookProcessor', () => {
 
   test('should execute all hooks in sequence for preCapture', async () => {
     const captureOrder: number[] = [];
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
-      { preCapture: vi.fn().mockImplementation(() => captureOrder.push(1)) },
-      { preCapture: vi.fn().mockImplementation(() => captureOrder.push(2)) },
-      { preCapture: vi.fn().mockImplementation(() => captureOrder.push(3)) },
+    const hooks: Hook[] = [
+      {
+        preCapture: vi.fn<PreCaptureHook>().mockImplementation(async () => {
+          captureOrder.push(1);
+        }),
+      },
+      {
+        preCapture: vi.fn<PreCaptureHook>().mockImplementation(async () => {
+          captureOrder.push(2);
+        }),
+      },
+      {
+        preCapture: vi.fn<PreCaptureHook>().mockImplementation(async () => {
+          captureOrder.push(3);
+        }),
+      },
     ];
 
     const processor = createHookProcessor(hooks);
@@ -51,10 +79,22 @@ describe('createHookProcessor', () => {
   test('should execute all hooks in sequence for postCapture', async () => {
     const postOrder: number[] = [];
     const filepath = '/test/screenshot.png';
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
-      { postCapture: vi.fn().mockImplementation(() => postOrder.push(1)) },
-      { postCapture: vi.fn().mockImplementation(() => postOrder.push(2)) },
-      { postCapture: vi.fn().mockImplementation(() => postOrder.push(3)) },
+    const hooks: Hook[] = [
+      {
+        postCapture: vi.fn<PostCaptureHook>().mockImplementation(async () => {
+          postOrder.push(1);
+        }),
+      },
+      {
+        postCapture: vi.fn<PostCaptureHook>().mockImplementation(async () => {
+          postOrder.push(2);
+        }),
+      },
+      {
+        postCapture: vi.fn<PostCaptureHook>().mockImplementation(async () => {
+          postOrder.push(3);
+        }),
+      },
     ];
 
     const processor = createHookProcessor(hooks);
@@ -79,10 +119,13 @@ describe('createHookProcessor', () => {
   });
 
   test('should skip undefined hook methods', async () => {
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
-      { setup: vi.fn() },
+    const hooks: Hook[] = [
+      { setup: vi.fn<SetupHook>() },
       {}, // empty hook with no methods
-      { preCapture: vi.fn(), postCapture: vi.fn() },
+      {
+        preCapture: vi.fn<PreCaptureHook>(),
+        postCapture: vi.fn<PostCaptureHook>(),
+      },
     ];
 
     const processor = createHookProcessor(hooks);
@@ -98,10 +141,10 @@ describe('createHookProcessor', () => {
 
   test('should propagate errors from hooks', async () => {
     const error = new Error('Hook error');
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
-      { setup: vi.fn() },
-      { setup: vi.fn().mockRejectedValue(error) },
-      { setup: vi.fn() }, // should not be called due to error
+    const hooks: Hook[] = [
+      { setup: vi.fn<SetupHook>() },
+      { setup: vi.fn<SetupHook>().mockRejectedValue(error) },
+      { setup: vi.fn<SetupHook>() }, // should not be called due to error
     ];
 
     const processor = createHookProcessor(hooks);
@@ -116,7 +159,7 @@ describe('createHookProcessor', () => {
   });
 
   test('should work with empty hooks array', async () => {
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [];
+    const hooks: Hook[] = [];
     const processor = createHookProcessor(hooks);
 
     // Should not throw errors
@@ -133,15 +176,15 @@ describe('createHookProcessor', () => {
 
   test('should handle async hooks correctly', async () => {
     const delays: number[] = [];
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
+    const hooks: Hook[] = [
       {
-        setup: vi.fn().mockImplementation(async () => {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
           await new Promise((resolve) => setTimeout(resolve, 10));
           delays.push(1);
         }),
       },
       {
-        setup: vi.fn().mockImplementation(async () => {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
           await new Promise((resolve) => setTimeout(resolve, 5));
           delays.push(2);
         }),
@@ -157,21 +200,23 @@ describe('createHookProcessor', () => {
 
   test('should handle mixed sync and async hooks', async () => {
     const executionOrder: string[] = [];
-    const hooks: ScreenshotHook<MockPage, MockContext>[] = [
+    const hooks: Hook[] = [
       {
-        setup: vi.fn().mockImplementation(() => {
+        setup: vi.fn<SetupHook>().mockImplementation(() => {
           executionOrder.push('sync1');
+          return Promise.resolve();
         }),
       },
       {
-        setup: vi.fn().mockImplementation(async () => {
+        setup: vi.fn<SetupHook>().mockImplementation(async () => {
           await new Promise((resolve) => setTimeout(resolve, 1));
           executionOrder.push('async');
         }),
       },
       {
-        setup: vi.fn().mockImplementation(() => {
+        setup: vi.fn<SetupHook>().mockImplementation(() => {
           executionOrder.push('sync2');
+          return Promise.resolve();
         }),
       },
     ];
