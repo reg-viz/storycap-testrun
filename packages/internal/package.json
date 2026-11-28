@@ -43,8 +43,7 @@
     "build": "tsdown",
     "clean": "rimraf dist",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc"
+    "test:watch": "vitest"
   },
   "tsdown": {
     "clean": true,
