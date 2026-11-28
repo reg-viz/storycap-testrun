@@ -1,7 +1,7 @@
+import { waitForPageReady } from '@storybook/test-runner';
+import { waitForStableMetrics as waitForStableMetricsBase } from '@storycap-testrun/internal';
 import type { Page } from 'playwright';
 import type { NodeScreenshotContext } from './context';
-import { waitForStableMetrics as waitForStableMetricsBase } from '@storycap-testrun/internal';
-import { waitForPageReady } from '@storybook/test-runner';
 
 const waitForStableMetrics = async (
   page: Page,

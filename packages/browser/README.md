@@ -95,10 +95,10 @@ Add the storycap plugin to your `vitest.config.js`:
 
 ```javascript
 import path from 'node:path';
-import { defineConfig, defineProject } from 'vitest/config';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import { playwright } from '@vitest/browser-playwright';
 import storycap from '@storycap-testrun/browser/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
+import { defineConfig, defineProject } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -140,10 +140,10 @@ export default defineConfig({
 Create `.storybook/vitest.setup.ts`:
 
 ```typescript
-import { afterEach, beforeEach } from 'vitest';
-import { page } from '@vitest/browser/context';
-import { screenshot } from '@storycap-testrun/browser';
 import { setProjectAnnotations } from '@storybook/react-vite'; // Adjust for your framework
+import { screenshot } from '@storycap-testrun/browser';
+import { page } from '@vitest/browser/context';
+import { afterEach, beforeEach } from 'vitest';
 import * as projectAnnotations from './preview';
 
 setProjectAnnotations([projectAnnotations]);

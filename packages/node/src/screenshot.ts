@@ -1,20 +1,20 @@
+import { createHash } from 'node:crypto';
 import * as path from 'node:path';
 import type { TestContext } from '@storybook/test-runner';
 import { getStoryContext } from '@storybook/test-runner';
-import type { Page } from 'playwright';
-import type { NodeScreenshotOptions } from './options';
-import type { NodeScreenshotContext } from './context';
 import {
   createScreenshotFunction,
   resolveScreenshotFilename,
   type ScreenshotAdapter,
   type ScreenshotOutputOptions,
 } from '@storycap-testrun/internal';
+import type { Page } from 'playwright';
+import type { NodeScreenshotContext } from './context';
 import { createAnimationsHook } from './hooks/animation';
-import { createRemovalHook } from './hooks/removal';
 import { createMaskingHook } from './hooks/masking';
+import { createRemovalHook } from './hooks/removal';
+import type { NodeScreenshotOptions } from './options';
 import { waitForStable } from './wait-for-stable';
-import { createHash } from 'node:crypto';
 
 /**
  * Creates screenshot adapter for Node.js environment with Storybook test-runner integration

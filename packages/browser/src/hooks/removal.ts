@@ -10,11 +10,11 @@ const remove = async (selector: string) => {
  * Creates hook that removes DOM elements matching the selector before screenshot capture
  */
 export const createRemovalHook = (selector: string): BrowserScreenshotHook => ({
-  async setup(_) {
+  async setup() {
     await remove(selector);
   },
 
-  async preCapture(_) {
+  async preCapture() {
     await remove(selector);
   },
 });

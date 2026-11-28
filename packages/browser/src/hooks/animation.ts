@@ -4,7 +4,7 @@ import type { BrowserScreenshotHook } from './types';
  * Creates hook that disables CSS animations and transitions during screenshot capture
  */
 export const createAnimationsHook = (): BrowserScreenshotHook => ({
-  async setup(_) {
+  async setup() {
     const style = document.createElement('style');
     style.innerHTML = `
         *,
@@ -18,7 +18,7 @@ export const createAnimationsHook = (): BrowserScreenshotHook => ({
     document.head.appendChild(style);
   },
 
-  async postCapture(_) {
+  async postCapture() {
     document.getElementById('::x-storycap-animations')?.remove();
   },
 });

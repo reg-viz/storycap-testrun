@@ -4,5 +4,9 @@
   "sortPackageJson": {
     "sortScripts": true
   },
-  "ignorePatterns": ["pnpm-lock.yaml"]
+  "ignorePatterns": ["pnpm-lock.yaml"],
+  "sortImports": {
+    "newlinesBetween": false,
+    "partitionByComment": true
+  }
 }

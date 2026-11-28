@@ -1,37 +1,55 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { createBrowserScreenshotAdapter } from './screenshot';
-import type { BrowserPage } from 'vitest/browser';
 import type { TestContext } from 'vitest';
+import type { BrowserPage, commands } from 'vitest/browser';
+import type { createAnimationsHook } from './hooks/animation';
+import type { createMaskingHook } from './hooks/masking';
+import type { createRemovalHook } from './hooks/removal';
+import type { BrowserScreenshotHook } from './hooks/types';
+import { createBrowserScreenshotAdapter } from './screenshot';
+import type { waitForStable } from './wait-for-stable';
+
+type Commands = typeof commands;
+type SetupHook = NonNullable<BrowserScreenshotHook['setup']>;
 
 // Mock the Vitest browser commands
 vi.mock('vitest/browser', () => ({
   commands: {
     resolveScreenshotFilepath: vi
-      .fn()
+      .fn<Commands['resolveScreenshotFilepath']>()
       .mockResolvedValue('/test/screenshot.png'),
     __storycap_takeScreenshot: vi
-      .fn()
+      .fn<Commands['__storycap_takeScreenshot']>()
       .mockResolvedValue('base64-screenshot-data'),
-    __storycap_prepareViewport: vi.fn().mockResolvedValue(undefined),
-    __storycap_restoreViewport: vi.fn().mockResolvedValue(undefined),
+    __storycap_prepareViewport: vi
+      .fn<Commands['__storycap_prepareViewport']>()
+      .mockResolvedValue(undefined),
+    __storycap_restoreViewport: vi
+      .fn<Commands['__storycap_restoreViewport']>()
+      .mockResolvedValue(undefined),
   },
 }));
 
 // Mock the hook modules
 vi.mock('./hooks/animation', () => ({
-  createAnimationsHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createAnimationsHook: vi
+    .fn<typeof createAnimationsHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./hooks/removal', () => ({
-  createRemovalHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createRemovalHook: vi
+    .fn<typeof createRemovalHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./hooks/masking', () => ({
-  createMaskingHook: vi.fn().mockReturnValue({ setup: vi.fn() }),
+  createMaskingHook: vi
+    .fn<typeof createMaskingHook>()
+    .mockReturnValue({ setup: vi.fn<SetupHook>() }),
 }));
 
 vi.mock('./wait-for-stable', () => ({
-  waitForStable: vi.fn().mockResolvedValue(undefined),
+  waitForStable: vi.fn<typeof waitForStable>().mockResolvedValue(undefined),
 }));
 
 // Mock crypto.subtle for hash function
@@ -39,7 +57,7 @@ Object.defineProperty(global, 'window', {
   value: {
     crypto: {
       subtle: {
-        digest: vi.fn().mockImplementation(() => {
+        digest: vi.fn<SubtleCrypto['digest']>().mockImplementation(() => {
           const buffer = new ArrayBuffer(32);
           const view = new Uint8Array(buffer);
           view.fill(0x42); // Fill with 0x42 for consistent hash
@@ -52,7 +70,7 @@ Object.defineProperty(global, 'window', {
 });
 
 Object.defineProperty(global, 'atob', {
-  value: vi.fn().mockImplementation((data: string) => {
+  value: vi.fn<typeof atob>().mockImplementation((data: string) => {
     return Buffer.from(data, 'base64').toString('binary');
   }),
   configurable: true,
@@ -74,7 +92,9 @@ describe('createBrowserScreenshotAdapter', () => {
     vi.clearAllMocks();
 
     mockPage = {
-      screenshot: vi.fn().mockResolvedValue({ base64: 'base64screenshot' }),
+      screenshot: vi
+        .fn<() => Promise<{ base64: string }>>()
+        .mockResolvedValue({ base64: 'base64screenshot' }),
     } as any;
 
     mockContext = {
