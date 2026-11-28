@@ -19,8 +19,7 @@
     "release": "changeset publish",
     "test": "pnpm test:unit && pnpm test:e2e",
     "test:e2e": "zx scripts/e2e.js",
-    "test:unit": "vitest run",
-    "typecheck": "pnpm --if-present -r typecheck"
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@changesets/changelog-github": "1.0.1",

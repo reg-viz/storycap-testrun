@@ -5,19 +5,16 @@ This file provides guidance to coding agents when working with code in this repo
 ## Commands
 
 ```bash
-# Initial setup (build required before lint/typecheck — packages depend on each other's dist)
+# Initial setup (build required before lint — packages depend on each other's dist)
 pnpm install
 pnpm build
 
 # Build all packages
 pnpm build
 
-# Lint (oxfmt + oxlint)
+# Lint and type check (oxfmt + oxlint with --type-check)
 pnpm lint                    # Check only
 pnpm format                  # Auto-fix
-
-# Type check
-pnpm typecheck
 
 # Unit tests (Vitest)
 pnpm test:unit               # Run all
@@ -29,7 +26,7 @@ pnpm test:e2e
 pnpm test:e2e v9-react-vite  # Single example
 
 # Per-package commands (from package dir)
-pnpm build / pnpm test / pnpm typecheck
+pnpm build / pnpm test
 ```
 
 ## Architecture

@@ -30,22 +30,6 @@ jobs:
       - run: pnpm build
       - run: pnpm lint
 
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read # checkout
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: $/.github/actions/setup-node
-
-      - run: pnpm build
-      - run: pnpm typecheck
-
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
@@ -125,7 +109,7 @@ jobs:
     name: Publish
     runs-on: ubuntu-latest
     if: github.repository == 'reg-viz/storycap-testrun' && github.ref == 'refs/heads/main'
-    needs: [lint, typecheck, test]
+    needs: [lint, test]
     # Environment secrets restricted to main keep the App key away from
     # workflows edited on other branches, which the job-level `if` cannot do.
     environment: release
