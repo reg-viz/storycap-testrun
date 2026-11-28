@@ -17,7 +17,12 @@
       }
     }
   ],
-  "ignorePatterns": ["**/dist/", "**/storybook-static/", "**/node_modules/"],
+  "ignorePatterns": [
+    "**/dist/",
+    "**/storybook-static/",
+    "**/node_modules/",
+    "examples/"
+  ],
   "env": {
     "es6": true,
     "node": true,

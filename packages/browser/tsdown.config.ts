@@ -11,7 +11,6 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     minify: true,
     sourcemap: false,
-    splitting: false,
   },
   {
     clean: false,
@@ -24,6 +23,5 @@ export default defineConfig([
     minify: true,
     outDir: 'dist/vitest-plugin',
     sourcemap: false,
-    splitting: false,
   },
 ]);
