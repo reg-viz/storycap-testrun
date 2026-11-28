@@ -74,7 +74,7 @@ Multi-layer approach:
 
 - **ESM**: `"type": "module"` throughout. Dual ESM+CJS output via tsdown
 - **TypeScript**: Strict mode via `@tsconfig/strictest`, `isolatedDeclarations: true`
-- **Linter**: oxlint (not ESLint) with type-aware checking. Config in `.oxlintrc.json`
+- **Linter**: oxlint (not ESLint) with type-aware checking through the tsrs backend; `pnpm lint` also type-checks (`--type-check`). Config in `.oxlintrc.json`. `examples/` is not linted, since its dependencies are not installed from the root
 - **Formatter**: oxfmt (config in `.oxfmtrc.json`)
 - **Build**: tsdown per package — minified, no sourcemaps, `.d.ts` with declaration maps
 - **Tests co-located**: `*.test.ts` alongside source files
